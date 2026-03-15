@@ -44,7 +44,7 @@ La API ya expone endpoints para usuarios, compras, recetas, producción, ventas,
 
 - Frontend: Angular, TypeScript, Angular Material, Reactive Forms, routing modular
 - Backend: ASP.NET Core Web API, .NET 8, EF Core, PostgreSQL, FluentValidation, JWT, Swagger
-- Infraestructura: Docker, Docker Compose, Nginx reverse proxy, GitHub Actions
+- Infraestructura: Docker, Docker Compose, Nginx del VPS como reverse proxy, GitHub Actions
 
 ## Estructura
 
@@ -214,10 +214,12 @@ Claves técnicas:
 
 - Angular build de producción usa `base href` y `deploy url` en `/bakeryFlow/`
 - la API usa `App__PathBase=/bakeryFlow`
-- Nginx reverse proxy enruta:
-  - `/bakeryFlow/` al contenedor frontend
-  - `/bakeryFlow/api/` al contenedor backend
-- solo Nginx publica `80` y `443`
+- BakeryFlow no publica ningún contenedor en `80` o `443`
+- el frontend queda publicado solo en `127.0.0.1:4207`
+- el backend queda publicado solo en `127.0.0.1:5107`
+- el Nginx principal del VPS debe enrutar:
+  - `/bakeryFlow/` a `127.0.0.1:4207`
+  - `/bakeryFlow/api/` a `127.0.0.1:5107`
 - frontend y backend usan puertos internos `8085` y `8086`
 - PostgreSQL queda solo en la red interna Docker
 
@@ -226,13 +228,49 @@ Claves técnicas:
 1. Copia el proyecto o al menos:
    - repo completo
    - `.env.production`
-2. Coloca los certificados TLS en:
-   - `deploy/nginx/certs/fullchain.pem`
-   - `deploy/nginx/certs/privkey.pem`
-3. Ejecuta:
+2. Ejecuta:
 
 ```bash
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build --remove-orphans
+```
+
+3. Agrega este bloque dentro del `server { ... }` del Nginx principal del VPS:
+
+```nginx
+location = /bakeryFlow {
+    return 301 /bakeryFlow/;
+}
+
+location /bakeryFlow/api/ {
+    proxy_pass http://127.0.0.1:5107;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+}
+
+location /bakeryFlow/ {
+    proxy_pass http://127.0.0.1:4207;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+}
+```
+
+Ese mismo bloque también quedó en:
+
+- [bakeryflow.shared-vps.conf](/Users/juanarias/Workspaces/Web/BakeryFlow/deploy/nginx/bakeryflow.shared-vps.conf)
+
+4. Recarga Nginx:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
 ```
 
 Verificación:
@@ -249,10 +287,8 @@ Configuración recomendada:
 1. Crea un registro `A` o `AAAA` para `deliciasbakery.shop` apuntando al servidor.
 2. Déjalo proxied con la nube naranja.
 3. En Cloudflare usa `SSL/TLS -> Full (strict)`.
-4. Genera un Cloudflare Origin Certificate y guárdalo en:
-   - `deploy/nginx/certs/fullchain.pem`
-   - `deploy/nginx/certs/privkey.pem`
-5. Mantén abierto en el servidor solo `80` y `443`.
+4. Configura TLS en el Nginx principal del VPS, no dentro de BakeryFlow.
+5. Mantén abierto en el servidor solo `80` y `443` hacia el exterior.
 6. Valida:
    - `https://deliciasbakery.shop/bakeryFlow/`
    - `https://deliciasbakery.shop/bakeryFlow/api/health`

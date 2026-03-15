@@ -1,21 +1,4 @@
 services:
-  reverse-proxy:
-    image: nginx:1.27-alpine
-    container_name: bakeryflow-reverse-proxy
-    depends_on:
-      - frontend
-      - backend
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./deploy/nginx/reverse-proxy.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./deploy/nginx/certs:/etc/nginx/certs:ro
-    restart: unless-stopped
-    networks:
-      - edge
-      - internal
-
   frontend:
     build:
       context: ./src/frontend/bakeryflow-app
@@ -23,8 +6,8 @@ services:
       args:
         BUILD_CONFIGURATION: production
     container_name: bakeryflow-frontend
-    expose:
-      - "8085"
+    ports:
+      - "127.0.0.1:4207:8085"
     restart: unless-stopped
     networks:
       - internal
@@ -36,8 +19,8 @@ services:
     container_name: bakeryflow-backend
     depends_on:
       - postgres
-    expose:
-      - "8086"
+    ports:
+      - "127.0.0.1:5107:8086"
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8086
@@ -71,6 +54,5 @@ volumes:
   bakeryflow-postgres:
 
 networks:
-  edge:
   internal:
     internal: true
