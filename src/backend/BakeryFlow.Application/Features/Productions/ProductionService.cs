@@ -2,6 +2,7 @@ using BakeryFlow.Application.Common.Exceptions;
 using BakeryFlow.Application.Common.Extensions;
 using BakeryFlow.Application.Common.Interfaces;
 using BakeryFlow.Application.Common.Models;
+using BakeryFlow.Application.Common.Time;
 using BakeryFlow.Domain.Entities;
 using BakeryFlow.Domain.Enums;
 using FluentValidation;
@@ -170,7 +171,7 @@ public sealed class ProductionService(IBakeryFlowDbContext dbContext) : IProduct
         var production = new Production
         {
             RecipeId = recipe.Id,
-            Date = request.Date == default ? DateTime.UtcNow : request.Date,
+            Date = request.Date == default ? DateTime.UtcNow : UtcDateTime.EnsureUtc(request.Date),
             QuantityToProduce = request.QuantityToProduce,
             QuantityActual = request.QuantityActual ?? request.QuantityToProduce,
             TotalCost = preview.TotalCost,

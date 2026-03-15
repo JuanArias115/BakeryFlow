@@ -2,6 +2,7 @@ using BakeryFlow.Application.Common.Exceptions;
 using BakeryFlow.Application.Common.Extensions;
 using BakeryFlow.Application.Common.Interfaces;
 using BakeryFlow.Application.Common.Models;
+using BakeryFlow.Application.Common.Time;
 using BakeryFlow.Domain.Entities;
 using BakeryFlow.Domain.Enums;
 using FluentValidation;
@@ -138,7 +139,7 @@ public sealed class PurchaseService(IBakeryFlowDbContext dbContext) : IPurchaseS
         {
             SupplierId = request.SupplierId,
             InvoiceNumber = request.InvoiceNumber?.Trim(),
-            PurchaseDate = request.PurchaseDate == default ? DateTime.UtcNow : request.PurchaseDate,
+            PurchaseDate = request.PurchaseDate == default ? DateTime.UtcNow : UtcDateTime.EnsureUtc(request.PurchaseDate),
             Notes = request.Notes?.Trim(),
             Status = PurchaseStatus.Draft
         };

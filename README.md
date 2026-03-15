@@ -159,6 +159,13 @@ npm start
 
 ## Base de datos y migraciones
 
+## Fechas en UTC
+
+- BakeryFlow persiste y consulta `DateTime` en UTC en backend
+- PostgreSQL usa columnas `timestamp with time zone` para fechas operativas como ventas, compras, producción y movimientos
+- los filtros y fechas recibidas por API se normalizan a UTC antes de consultar o guardar
+- el dashboard usa rangos UTC (`inicio de día` e `inicio de mes`) para evitar errores de `DateTimeKind.Unspecified` con Npgsql
+
 ## Usuarios y seguridad
 
 - los usuarios se almacenan en PostgreSQL

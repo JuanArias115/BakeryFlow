@@ -2,6 +2,7 @@ using BakeryFlow.Application.Common.Exceptions;
 using BakeryFlow.Application.Common.Extensions;
 using BakeryFlow.Application.Common.Interfaces;
 using BakeryFlow.Application.Common.Models;
+using BakeryFlow.Application.Common.Time;
 using BakeryFlow.Domain.Entities;
 using BakeryFlow.Domain.Enums;
 using FluentValidation;
@@ -110,14 +111,16 @@ public sealed class InventoryService(IBakeryFlowDbContext dbContext) : IInventor
 
     public async Task<PagedResult<InventoryMovementDto>> GetMovementsAsync(InventoryMovementFilterRequest request, CancellationToken cancellationToken = default)
     {
+        var fromUtc = UtcDateTime.EnsureUtc(request.From);
+        var toUtc = UtcDateTime.EnsureUtc(request.To);
         var term = request.Search?.Trim().ToLower();
         var query = dbContext.InventoryMovements
             .AsNoTracking()
             .Include(x => x.Ingredient)
             .Where(x =>
                 (!request.IngredientId.HasValue || x.IngredientId == request.IngredientId.Value) &&
-                (!request.From.HasValue || x.Date >= request.From.Value) &&
-                (!request.To.HasValue || x.Date <= request.To.Value) &&
+                (!fromUtc.HasValue || x.Date >= fromUtc.Value) &&
+                (!toUtc.HasValue || x.Date <= toUtc.Value) &&
                 (string.IsNullOrWhiteSpace(term) || x.Ingredient!.Name.ToLower().Contains(term)))
             .OrderByDescending(x => x.Date)
             .ThenByDescending(x => x.CreatedAt)
@@ -167,7 +170,7 @@ public sealed class InventoryService(IBakeryFlowDbContext dbContext) : IInventor
             IngredientId = ingredient.Id,
             Type = InventoryMovementType.Adjustment,
             DocumentType = InventoryDocumentType.Adjustment,
-            Date = request.Date == default ? DateTime.UtcNow : request.Date,
+            Date = request.Date == default ? DateTime.UtcNow : UtcDateTime.EnsureUtc(request.Date),
             QuantityIn = request.QuantityDelta > 0 ? request.QuantityDelta : 0,
             QuantityOut = request.QuantityDelta < 0 ? Math.Abs(request.QuantityDelta) : 0,
             ResultingBalance = ingredient.StockCurrent,

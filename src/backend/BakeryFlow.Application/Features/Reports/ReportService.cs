@@ -1,6 +1,7 @@
 using System.Text;
 using BakeryFlow.Application.Common.Interfaces;
 using BakeryFlow.Application.Common.Models;
+using BakeryFlow.Application.Common.Time;
 using Microsoft.EntityFrameworkCore;
 
 namespace BakeryFlow.Application.Features.Reports;
@@ -59,13 +60,17 @@ public sealed record ProductProfitabilityReportDto(
 
 public sealed class ReportService(IBakeryFlowDbContext dbContext) : IReportService
 {
-    public async Task<IReadOnlyCollection<PurchaseReportDto>> GetPurchaseReportAsync(DateRangeRequest request, CancellationToken cancellationToken = default) =>
-        await dbContext.Purchases
+    public async Task<IReadOnlyCollection<PurchaseReportDto>> GetPurchaseReportAsync(DateRangeRequest request, CancellationToken cancellationToken = default)
+    {
+        var fromUtc = UtcDateTime.EnsureUtc(request.From);
+        var toUtc = UtcDateTime.EnsureUtc(request.To);
+
+        return await dbContext.Purchases
             .AsNoTracking()
             .Include(x => x.Supplier)
             .Where(x =>
-                (!request.From.HasValue || x.PurchaseDate >= request.From.Value) &&
-                (!request.To.HasValue || x.PurchaseDate <= request.To.Value))
+                (!fromUtc.HasValue || x.PurchaseDate >= fromUtc.Value) &&
+                (!toUtc.HasValue || x.PurchaseDate <= toUtc.Value))
             .OrderByDescending(x => x.PurchaseDate)
             .Select(x => new PurchaseReportDto(
                 x.Id,
@@ -75,15 +80,20 @@ public sealed class ReportService(IBakeryFlowDbContext dbContext) : IReportServi
                 x.Status.ToString(),
                 x.Total))
             .ToListAsync(cancellationToken);
+    }
 
-    public async Task<IReadOnlyCollection<SaleReportDto>> GetSaleReportAsync(DateRangeRequest request, CancellationToken cancellationToken = default) =>
-        await dbContext.Sales
+    public async Task<IReadOnlyCollection<SaleReportDto>> GetSaleReportAsync(DateRangeRequest request, CancellationToken cancellationToken = default)
+    {
+        var fromUtc = UtcDateTime.EnsureUtc(request.From);
+        var toUtc = UtcDateTime.EnsureUtc(request.To);
+
+        return await dbContext.Sales
             .AsNoTracking()
             .Include(x => x.Customer)
             .Include(x => x.Details)
             .Where(x =>
-                (!request.From.HasValue || x.Date >= request.From.Value) &&
-                (!request.To.HasValue || x.Date <= request.To.Value))
+                (!fromUtc.HasValue || x.Date >= fromUtc.Value) &&
+                (!toUtc.HasValue || x.Date <= toUtc.Value))
             .OrderByDescending(x => x.Date)
             .Select(x => new SaleReportDto(
                 x.Id,
@@ -93,6 +103,7 @@ public sealed class ReportService(IBakeryFlowDbContext dbContext) : IReportServi
                 x.Total,
                 x.Details.Sum(d => d.Profit)))
             .ToListAsync(cancellationToken);
+    }
 
     public async Task<IReadOnlyCollection<InventoryReportDto>> GetInventoryReportAsync(CancellationToken cancellationToken = default) =>
         await dbContext.Ingredients
@@ -134,14 +145,18 @@ public sealed class ReportService(IBakeryFlowDbContext dbContext) : IReportServi
         }).ToList();
     }
 
-    public async Task<IReadOnlyCollection<ProductProfitabilityReportDto>> GetProductProfitabilityReportAsync(DateRangeRequest request, CancellationToken cancellationToken = default) =>
-        await dbContext.SaleDetails
+    public async Task<IReadOnlyCollection<ProductProfitabilityReportDto>> GetProductProfitabilityReportAsync(DateRangeRequest request, CancellationToken cancellationToken = default)
+    {
+        var fromUtc = UtcDateTime.EnsureUtc(request.From);
+        var toUtc = UtcDateTime.EnsureUtc(request.To);
+
+        return await dbContext.SaleDetails
             .AsNoTracking()
             .Include(x => x.Product)
             .Include(x => x.Sale)
             .Where(x =>
-                (!request.From.HasValue || x.Sale!.Date >= request.From.Value) &&
-                (!request.To.HasValue || x.Sale!.Date <= request.To.Value))
+                (!fromUtc.HasValue || x.Sale!.Date >= fromUtc.Value) &&
+                (!toUtc.HasValue || x.Sale!.Date <= toUtc.Value))
             .GroupBy(x => new { x.ProductId, x.Product!.Name })
             .OrderByDescending(x => x.Sum(y => y.Profit))
             .Select(group => new ProductProfitabilityReportDto(
@@ -151,6 +166,7 @@ public sealed class ReportService(IBakeryFlowDbContext dbContext) : IReportServi
                 group.Sum(x => x.Subtotal),
                 group.Sum(x => x.Profit)))
             .ToListAsync(cancellationToken);
+    }
 
     public string ExportPurchasesCsv(IEnumerable<PurchaseReportDto> items) =>
         BuildCsv(

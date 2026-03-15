@@ -2,6 +2,7 @@ using BakeryFlow.Application.Common.Interfaces;
 using BakeryFlow.Domain.Common;
 using BakeryFlow.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BakeryFlow.Infrastructure.Persistence;
 
@@ -41,6 +42,7 @@ public sealed class BakeryFlowDbContext(DbContextOptions<BakeryFlowDbContext> op
         ConfigureInventory(modelBuilder);
         ConfigureProduction(modelBuilder);
         ConfigureSale(modelBuilder);
+        ApplyUtcDateTimeConverters(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -306,4 +308,39 @@ public sealed class BakeryFlowDbContext(DbContextOptions<BakeryFlowDbContext> op
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
+
+    private static void ApplyUtcDateTimeConverters(ModelBuilder modelBuilder)
+    {
+        var utcDateTimeConverter = new ValueConverter<DateTime, DateTime>(
+            value => NormalizeDateTime(value),
+            value => DateTime.SpecifyKind(value, DateTimeKind.Utc));
+
+        var nullableUtcDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
+            value => value.HasValue ? NormalizeDateTime(value.Value) : value,
+            value => value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime))
+                {
+                    property.SetValueConverter(utcDateTimeConverter);
+                }
+                else if (property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(nullableUtcDateTimeConverter);
+                }
+            }
+        }
+    }
+
+    private static DateTime NormalizeDateTime(DateTime value) =>
+        value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            DateTimeKind.Unspecified => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+            _ => value
+        };
 }

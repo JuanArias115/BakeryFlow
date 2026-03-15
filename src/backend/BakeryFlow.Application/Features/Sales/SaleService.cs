@@ -2,6 +2,7 @@ using BakeryFlow.Application.Common.Exceptions;
 using BakeryFlow.Application.Common.Extensions;
 using BakeryFlow.Application.Common.Interfaces;
 using BakeryFlow.Application.Common.Models;
+using BakeryFlow.Application.Common.Time;
 using BakeryFlow.Domain.Entities;
 using BakeryFlow.Domain.Enums;
 using FluentValidation;
@@ -130,7 +131,7 @@ public sealed class SaleService(IBakeryFlowDbContext dbContext) : ISaleService
         var sale = new Sale
         {
             CustomerId = request.CustomerId,
-            Date = request.Date == default ? DateTime.UtcNow : request.Date,
+            Date = request.Date == default ? DateTime.UtcNow : UtcDateTime.EnsureUtc(request.Date),
             Notes = request.Notes?.Trim(),
             PaymentMethod = request.PaymentMethod,
             Status = SaleStatus.Completed,
