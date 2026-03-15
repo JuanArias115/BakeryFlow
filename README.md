@@ -216,6 +216,7 @@ La publicación de producción está preparada para:
 
 - frontend: `https://deliciasbakery.shop/bakeryFlow/`
 - API: `https://deliciasbakery.shop/bakeryFlow/api/`
+- login: `POST https://deliciasbakery.shop/bakeryFlow/api/auth/login`
 - Swagger: `https://deliciasbakery.shop/bakeryFlow/api/swagger`
 
 Claves técnicas:
