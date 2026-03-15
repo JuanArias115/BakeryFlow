@@ -6,6 +6,7 @@ using BakeryFlow.Infrastructure.Persistence.Seed;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Writers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,18 +80,51 @@ if (!string.IsNullOrWhiteSpace(pathBase))
 app.UseMiddleware<ApiExceptionMiddleware>();
 app.UseSwagger(options =>
 {
-    options.RouteTemplate = "api/docs/{documentName}/swagger.json";
+    options.RouteTemplate = "api/swagger/{documentName}/swagger.json";
+    options.PreSerializeFilters.Add((swagger, httpRequest) =>
+    {
+        var forwardedProto = httpRequest.Headers["X-Forwarded-Proto"].FirstOrDefault();
+        var forwardedHost = httpRequest.Headers["X-Forwarded-Host"].FirstOrDefault();
+        var forwardedPrefix = httpRequest.Headers["X-Forwarded-Prefix"].FirstOrDefault();
+
+        var scheme = string.IsNullOrWhiteSpace(forwardedProto) ? httpRequest.Scheme : forwardedProto;
+        var host = string.IsNullOrWhiteSpace(forwardedHost) ? httpRequest.Host.Value : forwardedHost;
+        var serverBase = string.IsNullOrWhiteSpace(forwardedPrefix)
+            ? (string.IsNullOrWhiteSpace(pathBase) ? string.Empty : pathBase)
+            : forwardedPrefix.TrimEnd('/');
+
+        swagger.Servers =
+        [
+            new OpenApiServer
+            {
+                Url = $"{scheme}://{host}{serverBase}"
+            }
+        ];
+    });
 });
 app.UseSwaggerUI(options =>
 {
-    var prefix = string.IsNullOrWhiteSpace(pathBase) ? string.Empty : pathBase;
-    options.RoutePrefix = "api/docs";
-    options.SwaggerEndpoint($"{prefix}/api/docs/v1/swagger.json", "BakeryFlow API v1");
+    options.RoutePrefix = "api/swagger";
+    options.SwaggerEndpoint("v1/swagger.json", "BakeryFlow API v1");
 });
 app.UseCors("DefaultCors");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGet("/api", () => Results.Ok(new
+{
+    name = "BakeryFlow API",
+    status = "ok",
+    swagger = "swagger",
+    health = "health"
+}));
+app.MapGet("/api/", () => Results.Ok(new
+{
+    name = "BakeryFlow API",
+    status = "ok",
+    swagger = "swagger",
+    health = "health"
+}));
 app.MapControllers();
 app.MapHealthChecks("/api/health");
 

@@ -125,7 +125,7 @@ docker compose up --build
 Servicios:
 
 - frontend: [http://localhost:4200](http://localhost:4200)
-- backend: [http://localhost:5126/api/docs](http://localhost:5126/api/docs)
+- backend: [http://localhost:5126/api/swagger](http://localhost:5126/api/swagger)
 - postgres: `localhost:5432`
 
 ### Opción 2: local nativo
@@ -216,17 +216,20 @@ La publicación de producción está preparada para:
 
 - frontend: `https://deliciasbakery.shop/bakeryFlow/`
 - API: `https://deliciasbakery.shop/bakeryFlow/api/`
+- Swagger: `https://deliciasbakery.shop/bakeryFlow/api/swagger`
 
 Claves técnicas:
 
 - Angular build de producción usa `base href` y `deploy url` en `/bakeryFlow/`
-- la API usa `App__PathBase=/bakeryFlow`
+- la API mantiene rutas internas en `/api/...`
+- el sitio principal `deliciasBakery` publica BakeryFlow bajo `/bakeryFlow/` mediante reverse proxy
 - BakeryFlow no publica ningún contenedor en `80` o `443`
 - el frontend queda publicado solo en `127.0.0.1:4207`
 - el backend queda publicado solo en `127.0.0.1:5107`
 - el Nginx principal del VPS debe enrutar:
   - `/bakeryFlow/` a `127.0.0.1:4207`
   - `/bakeryFlow/api/` a `127.0.0.1:5107`
+- Swagger interno queda en `/api/swagger` y público en `/bakeryFlow/api/swagger`
 - frontend y backend usan puertos internos `8085` y `8086`
 - PostgreSQL queda solo en la red interna Docker
 
