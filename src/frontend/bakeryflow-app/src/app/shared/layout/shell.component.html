@@ -1,0 +1,47 @@
+<mat-sidenav-container class="shell-container">
+  <mat-sidenav mode="side" opened class="shell-sidenav">
+    <div class="brand">
+      <span class="brand-mark">BF</span>
+      <div>
+        <strong>BakeryFlow</strong>
+        <p>Operación diaria</p>
+      </div>
+    </div>
+
+    <a
+      *ngFor="let item of navItems"
+      mat-list-item
+      [routerLink]="item.route"
+      routerLinkActive="active-link"
+      class="nav-link"
+    >
+      {{ item.label }}
+    </a>
+
+    <ng-container *ngIf="isAdmin">
+      <a
+        *ngFor="let item of adminNavItems"
+        mat-list-item
+        [routerLink]="item.route"
+        routerLinkActive="active-link"
+        class="nav-link"
+      >
+        {{ item.label }}
+      </a>
+    </ng-container>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="shell-toolbar">
+      <div>
+        <p class="toolbar-caption">Panadería y pastelería</p>
+        <span class="toolbar-title">BakeryFlow</span>
+      </div>
+      <button mat-stroked-button type="button" (click)="logout()">Salir</button>
+    </mat-toolbar>
+
+    <main class="shell-content">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

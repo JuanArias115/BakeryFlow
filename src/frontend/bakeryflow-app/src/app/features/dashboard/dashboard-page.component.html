@@ -1,0 +1,74 @@
+<app-page-header
+  title="Dashboard"
+  description="Ventas, compras, stock bajo y desempeño de productos en una sola vista."
+></app-page-header>
+
+<div *ngIf="data as dashboard; else loadingState" class="dashboard-grid">
+  <section class="stats-grid">
+    <app-stat-card label="Ventas del día" [value]="currency(dashboard.salesToday)"></app-stat-card>
+    <app-stat-card label="Ventas del mes" [value]="currency(dashboard.salesMonth)"></app-stat-card>
+    <app-stat-card label="Compras del mes" [value]="currency(dashboard.purchasesMonth)"></app-stat-card>
+    <app-stat-card label="Productos" [value]="dashboard.productsCount.toString()"></app-stat-card>
+    <app-stat-card label="Ingredientes" [value]="dashboard.ingredientsCount.toString()"></app-stat-card>
+  </section>
+
+  <section class="card chart-card">
+    <h3>Ventas de los últimos 7 días</h3>
+    <div class="bar-list">
+      <div class="bar-row" *ngFor="let point of dashboard.dailySalesChart">
+        <span>{{ point.label }}</span>
+        <div class="bar-track">
+          <div class="bar-fill" [style.width.%]="dashboard.salesMonth ? (point.value / dashboard.salesMonth) * 100 : 0"></div>
+        </div>
+        <strong>{{ currency(point.value) }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="card chart-card">
+    <h3>Flujo mensual</h3>
+    <div class="bar-list dual">
+      <div class="bar-row" *ngFor="let point of dashboard.monthlyFlowChart">
+        <span>{{ point.label }}</span>
+        <div class="dual-bars">
+          <div class="mini-bar sales" [style.width.%]="point.value"></div>
+          <div class="mini-bar purchases" [style.width.%]="point.secondaryValue || 0"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Productos con mejor utilidad</h3>
+    <ul>
+      <li *ngFor="let item of dashboard.topProfitableProducts">
+        <span>{{ item.name }}</span>
+        <strong>{{ currency(item.value) }}</strong>
+      </li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h3>Productos más vendidos</h3>
+    <ul>
+      <li *ngFor="let item of dashboard.topSellingProducts">
+        <span>{{ item.name }}</span>
+        <strong>{{ item.value }}</strong>
+      </li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h3>Ingredientes con stock bajo</h3>
+    <ul>
+      <li *ngFor="let item of dashboard.lowStockIngredients">
+        <span>{{ item.ingredientName }}</span>
+        <strong>{{ item.stockCurrent }} / {{ item.stockMinimum }}</strong>
+      </li>
+    </ul>
+  </section>
+</div>
+
+<ng-template #loadingState>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>

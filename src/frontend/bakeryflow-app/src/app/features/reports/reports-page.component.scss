@@ -1,0 +1,24 @@
+.filters form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.reports-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  padding: 1.25rem;
+  border-radius: 1.4rem;
+  background: var(--bf-surface);
+  border: 1px solid rgba(112, 79, 67, 0.12);
+}
+
+pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}

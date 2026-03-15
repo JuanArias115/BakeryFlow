@@ -1,0 +1,27 @@
+<section class="login-page">
+  <div class="login-card">
+    <p class="eyebrow">BakeryFlow</p>
+    <h1>Control operativo para tu panadería</h1>
+    <p class="intro">
+      Administra productos, ingredientes, producción, compras y ventas desde un solo tablero.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Correo</mat-label>
+        <input matInput type="email" formControlName="email" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Contraseña</mat-label>
+        <input matInput type="password" formControlName="password" />
+      </mat-form-field>
+
+      <p class="error" *ngIf="error">{{ error }}</p>
+
+      <button mat-flat-button color="primary" type="submit" [disabled]="loading">
+        {{ loading ? 'Ingresando...' : 'Ingresar' }}
+      </button>
+    </form>
+  </div>
+</section>

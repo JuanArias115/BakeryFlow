@@ -1,0 +1,29 @@
+:root {
+  --bf-background: #fffafb;
+  --bf-surface: #ffffff;
+  --bf-primary: #f29abc;
+  --bf-primary-strong: #dd5f92;
+  --bf-beige: #f6ede7;
+  --bf-brown: #704f43;
+  --bf-text: #2f2521;
+  --bf-text-muted: #6b5a52;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bf-background);
+  color: var(--bf-text);
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-unelevated-button.mat-primary {
+  --mdc-filled-button-container-color: var(--bf-primary-strong);
+  --mdc-filled-button-label-text-color: #ffffff;
+}

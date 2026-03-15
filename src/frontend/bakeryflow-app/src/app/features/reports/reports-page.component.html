@@ -1,0 +1,29 @@
+<app-page-header
+  title="Reportes"
+  description="Consulta compras, ventas, inventario y utilidad por producto con filtros simples."
+></app-page-header>
+
+<section class="card filters">
+  <form [formGroup]="filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" formControlName="from" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Hasta</mat-label>
+      <input matInput type="date" formControlName="to" />
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="button" (click)="loadReports()">Aplicar filtros</button>
+    <button mat-stroked-button type="button" (click)="downloadCsv('purchases', 'compras.csv')">CSV compras</button>
+    <button mat-stroked-button type="button" (click)="downloadCsv('sales', 'ventas.csv')">CSV ventas</button>
+    <button mat-stroked-button type="button" (click)="downloadCsv('inventory', 'inventario.csv')">CSV inventario</button>
+  </form>
+</section>
+
+<div class="reports-grid">
+  <section class="card"><h3>Compras</h3><pre>{{ purchases | json }}</pre></section>
+  <section class="card"><h3>Ventas</h3><pre>{{ sales | json }}</pre></section>
+  <section class="card"><h3>Inventario actual</h3><pre>{{ inventory | json }}</pre></section>
+  <section class="card"><h3>Costo por producto</h3><pre>{{ costs | json }}</pre></section>
+  <section class="card"><h3>Utilidad por producto</h3><pre>{{ profitability | json }}</pre></section>
+</div>

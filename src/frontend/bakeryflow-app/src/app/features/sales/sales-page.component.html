@@ -1,0 +1,28 @@
+<app-page-header title="Ventas" description="Consulta el historial de ventas y su utilidad básica."></app-page-header>
+
+<section class="card">
+  <table mat-table [dataSource]="items">
+    <ng-container matColumnDef="customerName">
+      <th mat-header-cell *matHeaderCellDef>Cliente</th>
+      <td mat-cell *matCellDef="let item">{{ item.customerName || 'General' }}</td>
+    </ng-container>
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef>Fecha</th>
+      <td mat-cell *matCellDef="let item">{{ item.date | date: 'short' }}</td>
+    </ng-container>
+    <ng-container matColumnDef="total">
+      <th mat-header-cell *matHeaderCellDef>Total</th>
+      <td mat-cell *matCellDef="let item">{{ currency(item.total) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="profit">
+      <th mat-header-cell *matHeaderCellDef>Utilidad</th>
+      <td mat-cell *matCellDef="let item">{{ currency(item.profit) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="paymentMethod">
+      <th mat-header-cell *matHeaderCellDef>Pago</th>
+      <td mat-cell *matCellDef="let item">{{ item.paymentMethod }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="['customerName', 'date', 'total', 'profit', 'paymentMethod']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['customerName', 'date', 'total', 'profit', 'paymentMethod']"></tr>
+  </table>
+</section>

@@ -1,0 +1,97 @@
+<app-page-header
+  title="Usuarios"
+  description="Solo los administradores pueden crear, editar, activar/desactivar usuarios y cambiar contraseñas."
+></app-page-header>
+
+<section class="users-grid">
+  <div class="card">
+    <h3>{{ editingId ? 'Editar usuario' : 'Crear usuario' }}</h3>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="user-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="firstName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Apellido</mat-label>
+        <input matInput formControlName="lastName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Rol</mat-label>
+        <mat-select formControlName="role">
+          <mat-option value="Admin">Admin</mat-option>
+          <mat-option value="Operator">Operator</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Contraseña {{ editingId ? '(solo para crear)' : '' }}</mat-label>
+        <input matInput type="password" formControlName="password" />
+      </mat-form-field>
+
+      <mat-checkbox formControlName="isActive">Activo</mat-checkbox>
+
+      <div class="actions">
+        <button mat-flat-button color="primary" type="submit">
+          {{ editingId ? 'Actualizar' : 'Crear' }}
+        </button>
+        <button mat-stroked-button type="button" (click)="resetForm()">Limpiar</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Listado de usuarios</h3>
+    <p class="error" *ngIf="error">{{ error }}</p>
+    <table mat-table [dataSource]="users">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <td mat-cell *matCellDef="let user">{{ user.firstName }} {{ user.lastName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+      </ng-container>
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef>Rol</th>
+        <td mat-cell *matCellDef="let user">{{ user.role }}</td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let user">{{ user.isActive ? 'Activo' : 'Inactivo' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let user" class="table-actions">
+          <button mat-button type="button" (click)="edit(user)">Editar</button>
+          <button mat-button type="button" (click)="toggleStatus(user)">
+            {{ user.isActive ? 'Desactivar' : 'Activar' }}
+          </button>
+          <button mat-button type="button" (click)="openPasswordDialog(user.id)">Cambiar contraseña</button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="['name', 'email', 'role', 'status', 'actions']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['name', 'email', 'role', 'status', 'actions']"></tr>
+    </table>
+  </div>
+</section>
+
+<section class="card password-card" *ngIf="passwordUserId">
+  <h3>Cambiar contraseña</h3>
+  <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="password-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Nueva contraseña</mat-label>
+      <input matInput type="password" formControlName="password" />
+    </mat-form-field>
+    <div class="actions">
+      <button mat-flat-button color="primary" type="submit">Guardar</button>
+      <button mat-stroked-button type="button" (click)="passwordUserId = null">Cancelar</button>
+    </div>
+  </form>
+</section>

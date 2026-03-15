@@ -1,0 +1,52 @@
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at top left, rgba(242, 154, 188, 0.3), transparent 25%),
+    radial-gradient(circle at bottom right, rgba(112, 79, 67, 0.12), transparent 25%),
+    linear-gradient(180deg, #fffafb 0%, #f7eee8 100%);
+}
+
+.login-card {
+  width: min(100%, 460px);
+  padding: 2rem;
+  border-radius: 1.75rem;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(221, 95, 146, 0.18);
+  box-shadow: 0 24px 48px rgba(112, 79, 67, 0.12);
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--bf-primary-strong);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+  color: var(--bf-text);
+}
+
+.intro {
+  margin: 0 0 1.5rem;
+  color: var(--bf-text-muted);
+}
+
+form {
+  display: grid;
+  gap: 1rem;
+}
+
+button {
+  width: 100%;
+  min-height: 48px;
+}
+
+.error {
+  margin: 0;
+  color: #c94a73;
+}

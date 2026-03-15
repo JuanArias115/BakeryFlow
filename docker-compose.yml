@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bakeryflow-postgres-dev
+    environment:
+      POSTGRES_DB: ${DEV_POSTGRES_DB}
+      POSTGRES_USER: ${DEV_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DEV_POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - bakeryflow-postgres-dev:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./src/backend
+      dockerfile: BakeryFlow.Api/Dockerfile
+    container_name: bakeryflow-backend-dev
+    depends_on:
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8086
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${DEV_POSTGRES_DB};Username=${DEV_POSTGRES_USER};Password=${DEV_POSTGRES_PASSWORD}
+      Jwt__Issuer: ${DEV_JWT_ISSUER}
+      Jwt__Audience: ${DEV_JWT_AUDIENCE}
+      Jwt__Key: ${DEV_JWT_KEY}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_NAME: ${ADMIN_NAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    ports:
+      - "5126:8086"
+
+  frontend:
+    build:
+      context: ./src/frontend/bakeryflow-app
+      dockerfile: Dockerfile
+      args:
+        BUILD_CONFIGURATION: development
+    container_name: bakeryflow-frontend-dev
+    depends_on:
+      - backend
+    ports:
+      - "4200:8085"
+
+volumes:
+  bakeryflow-postgres-dev:

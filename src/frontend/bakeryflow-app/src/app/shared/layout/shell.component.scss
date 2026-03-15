@@ -1,0 +1,70 @@
+.shell-container {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgba(242, 154, 188, 0.28), transparent 28%),
+    linear-gradient(180deg, #fffafb 0%, #fdf3ee 100%);
+}
+
+.shell-sidenav {
+  width: 270px;
+  padding: 1rem;
+  background: linear-gradient(180deg, #ffffff 0%, #fff5f7 100%);
+  border-right: 1px solid rgba(112, 79, 67, 0.08);
+}
+
+.brand {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  padding: 0.5rem 0.75rem 1rem;
+}
+
+.brand-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--bf-primary) 0%, var(--bf-primary-strong) 100%);
+  color: #fff;
+  font-weight: 700;
+}
+
+.brand p,
+.toolbar-caption {
+  margin: 0;
+  color: var(--bf-text-muted);
+}
+
+.nav-link {
+  border-radius: 14px;
+  margin-bottom: 0.3rem;
+  color: var(--bf-text);
+}
+
+.active-link {
+  background: rgba(242, 154, 188, 0.18);
+  color: var(--bf-primary-strong);
+}
+
+.shell-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1.4rem;
+  background: rgba(255, 250, 251, 0.86);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(112, 79, 67, 0.08);
+}
+
+.toolbar-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--bf-text);
+}
+
+.shell-content {
+  padding: 1.5rem;
+}

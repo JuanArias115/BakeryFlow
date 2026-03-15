@@ -1,0 +1,16 @@
+.DS_Store
+.idea/
+.vscode/
+node_modules/
+dist/
+coverage/
+bin/
+obj/
+.angular/
+*.user
+*.suo
+*.db
+.env
+.env.production
+.env.local
+deploy/nginx/certs/

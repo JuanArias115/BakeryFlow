@@ -1,0 +1,21 @@
+.inventory-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  padding: 1.25rem;
+  border-radius: 1.4rem;
+  background: var(--bf-surface);
+  border: 1px solid rgba(112, 79, 67, 0.12);
+}
+
+.adjustment-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+table {
+  width: 100%;
+}

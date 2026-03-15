@@ -1,0 +1,44 @@
+.users-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 1rem;
+}
+
+.card {
+  padding: 1.25rem;
+  border-radius: 1.4rem;
+  background: var(--bf-surface);
+  border: 1px solid rgba(112, 79, 67, 0.12);
+}
+
+.user-form,
+.password-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.actions,
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.password-card {
+  margin-top: 1rem;
+  max-width: 420px;
+}
+
+.error {
+  color: #c94a73;
+}
+
+table {
+  width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .users-grid {
+    grid-template-columns: 1fr;
+  }
+}
