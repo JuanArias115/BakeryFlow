@@ -165,6 +165,7 @@ npm start
 - PostgreSQL usa columnas `timestamp with time zone` para fechas operativas como ventas, compras, producción y movimientos
 - los filtros y fechas recibidas por API se normalizan a UTC antes de consultar o guardar
 - el dashboard usa rangos UTC (`inicio de día` e `inicio de mes`) para evitar errores de `DateTimeKind.Unspecified` con Npgsql
+- las agregaciones del dashboard se resuelven con proyecciones SQL simples y el mapeo final a DTO se hace después de `ToListAsync()` para evitar errores de traducción de EF Core
 
 ## Usuarios y seguridad
 

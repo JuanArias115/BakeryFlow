@@ -63,31 +63,39 @@ public sealed class DashboardService(
         var productsCount = await dbContext.Products.CountAsync(cancellationToken);
         var ingredientsCount = await dbContext.Ingredients.CountAsync(cancellationToken);
 
-        var topProfitableProducts = await dbContext.SaleDetails
-            .AsNoTracking()
-            .Include(x => x.Product)
-            .GroupBy(x => new { x.ProductId, x.Product!.Name })
-            .Select(group => new DashboardTopItemDto(
-                group.Key.ProductId,
-                group.Key.Name,
-                group.Sum(x => x.Profit),
-                group.Sum(x => x.Quantity)))
-            .OrderByDescending(x => x.Value)
-            .Take(5)
-            .ToListAsync(cancellationToken);
+        var topProfitableProducts = (await dbContext.SaleDetails
+                .AsNoTracking()
+                .GroupBy(x => new { x.ProductId, ProductName = x.Product!.Name })
+                .Select(group => new
+                {
+                    group.Key.ProductId,
+                    group.Key.ProductName,
+                    Profit = group.Sum(x => x.Profit),
+                    Quantity = group.Sum(x => x.Quantity)
+                })
+                .OrderByDescending(x => x.Profit)
+                .ThenBy(x => x.ProductName)
+                .Take(5)
+                .ToListAsync(cancellationToken))
+            .Select(x => new DashboardTopItemDto(x.ProductId, x.ProductName, x.Profit, x.Quantity))
+            .ToList();
 
-        var topSellingProducts = await dbContext.SaleDetails
-            .AsNoTracking()
-            .Include(x => x.Product)
-            .GroupBy(x => new { x.ProductId, x.Product!.Name })
-            .Select(group => new DashboardTopItemDto(
-                group.Key.ProductId,
-                group.Key.Name,
-                group.Sum(x => x.Quantity),
-                group.Sum(x => x.Subtotal)))
-            .OrderByDescending(x => x.Value)
-            .Take(5)
-            .ToListAsync(cancellationToken);
+        var topSellingProducts = (await dbContext.SaleDetails
+                .AsNoTracking()
+                .GroupBy(x => new { x.ProductId, ProductName = x.Product!.Name })
+                .Select(group => new
+                {
+                    group.Key.ProductId,
+                    group.Key.ProductName,
+                    Quantity = group.Sum(x => x.Quantity),
+                    Revenue = group.Sum(x => x.Subtotal)
+                })
+                .OrderByDescending(x => x.Quantity)
+                .ThenBy(x => x.ProductName)
+                .Take(5)
+                .ToListAsync(cancellationToken))
+            .Select(x => new DashboardTopItemDto(x.ProductId, x.ProductName, x.Quantity, x.Revenue))
+            .ToList();
 
         var lowStockIngredients = await dbContext.Ingredients
             .AsNoTracking()
