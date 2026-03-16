@@ -122,9 +122,62 @@ table.mat-mdc-table {
   width: 100%;
 }
 
+.mat-mdc-form-field-subscript-wrapper {
+  margin-top: 0.18rem;
+}
+
 .mat-mdc-text-field-wrapper {
   border-radius: 1rem !important;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: inset 0 0 0 1px rgba(112, 79, 67, 0.05);
+  transition:
+    box-shadow 150ms ease,
+    transform 150ms ease,
+    background 150ms ease;
+}
+
+.mat-mdc-form-field:hover .mat-mdc-text-field-wrapper {
+  background: rgba(255, 255, 255, 1);
+  box-shadow:
+    inset 0 0 0 1px rgba(112, 79, 67, 0.08),
+    0 10px 22px rgba(112, 79, 67, 0.05);
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+  background: #fff;
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(221, 95, 146, 0.18),
+    0 14px 28px rgba(221, 95, 146, 0.12);
+}
+
+.mat-mdc-form-field .mdc-notched-outline__leading,
+.mat-mdc-form-field .mdc-notched-outline__notch,
+.mat-mdc-form-field .mdc-notched-outline__trailing {
+  border-color: rgba(112, 79, 67, 0.14) !important;
+}
+
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-color: rgba(221, 95, 146, 0.72) !important;
+  border-width: 1.5px !important;
+}
+
+.mat-mdc-form-field .mat-mdc-floating-label,
+.mat-mdc-form-field .mat-mdc-select-value-text,
+.mat-mdc-form-field input,
+.mat-mdc-form-field textarea {
+  color: var(--bf-text) !important;
+}
+
+.mat-mdc-form-field .mat-mdc-floating-label {
+  font-weight: 600;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-icon-suffix,
+.mat-mdc-form-field .mat-mdc-select-arrow {
+  color: var(--bf-primary-strong);
 }
 
 .mat-mdc-paginator {
@@ -185,6 +238,17 @@ table.mat-mdc-table {
   height: 44px !important;
 }
 
+.mat-icon,
+.material-icons,
+.material-symbols-outlined {
+  font-style: normal;
+  line-height: 1;
+}
+
+.mat-icon {
+  overflow: visible;
+}
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -200,6 +264,23 @@ table.mat-mdc-table {
   .card {
     padding: 1rem;
     border-radius: 1.2rem;
+  }
+
+  .bf-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bf-form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bf-form-actions > * {
+    width: 100%;
+  }
+
+  .bf-table-wrap {
+    border-radius: 1rem;
   }
 
   .mat-mdc-header-cell,

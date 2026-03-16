@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MatIconRegistry } from '@angular/material/icon';
 import { LoadingService } from './core/services/loading.service';
 
 @Component({
@@ -10,7 +11,11 @@ import { LoadingService } from './core/services/loading.service';
 export class App {
   readonly isLoading$;
 
-  constructor(loadingService: LoadingService) {
+  constructor(
+    loadingService: LoadingService,
+    matIconRegistry: MatIconRegistry,
+  ) {
     this.isLoading$ = loadingService.isLoading$;
+    matIconRegistry.setDefaultFontSetClass('material-symbols-outlined');
   }
 }
