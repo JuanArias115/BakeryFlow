@@ -1,0 +1,56 @@
+.loading-shell {
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem 0;
+}
+
+.loading-shell.compact {
+  padding: 0.25rem 0;
+}
+
+.loading-copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.loading-copy strong {
+  font-size: 0.98rem;
+  color: var(--bf-text);
+}
+
+.loading-copy p {
+  margin: 0;
+  color: var(--bf-text-muted);
+}
+
+.skeleton-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.skeleton-row {
+  display: block;
+  height: 0.95rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(246, 237, 231, 0.8) 25%, rgba(255, 255, 255, 0.96) 50%, rgba(246, 237, 231, 0.8) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
+.skeleton-row:nth-child(2n) {
+  width: 88%;
+}
+
+.skeleton-row:nth-child(3n) {
+  width: 72%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}

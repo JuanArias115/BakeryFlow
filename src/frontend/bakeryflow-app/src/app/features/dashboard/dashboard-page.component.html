@@ -1,74 +1,197 @@
 <app-page-header
   title="Dashboard"
-  description="Ventas, compras, stock bajo y desempeño de productos en una sola vista."
-></app-page-header>
+  description="Un resumen cálido y claro de ventas, compras, stock y desempeño para operar con orden."
+  icon="space_dashboard"
+>
+  <span class="header-pill">Resumen del día</span>
+</app-page-header>
 
-<div *ngIf="data as dashboard; else loadingState" class="dashboard-grid">
-  <section class="stats-grid">
-    <app-stat-card label="Ventas del día" [value]="currency(dashboard.salesToday)"></app-stat-card>
-    <app-stat-card label="Ventas del mes" [value]="currency(dashboard.salesMonth)"></app-stat-card>
-    <app-stat-card label="Compras del mes" [value]="currency(dashboard.purchasesMonth)"></app-stat-card>
-    <app-stat-card label="Productos" [value]="dashboard.productsCount.toString()"></app-stat-card>
-    <app-stat-card label="Ingredientes" [value]="dashboard.ingredientsCount.toString()"></app-stat-card>
-  </section>
+<ng-container *ngIf="loading">
+  <app-loading-state
+    title="Preparando tu tablero"
+    description="Estamos calculando ventas, compras, stock y productos destacados."
+    [rows]="7"
+  ></app-loading-state>
+</ng-container>
 
-  <section class="card chart-card">
-    <h3>Ventas de los últimos 7 días</h3>
-    <div class="bar-list">
-      <div class="bar-row" *ngFor="let point of dashboard.dailySalesChart">
-        <span>{{ point.label }}</span>
-        <div class="bar-track">
-          <div class="bar-fill" [style.width.%]="dashboard.salesMonth ? (point.value / dashboard.salesMonth) * 100 : 0"></div>
+<p class="bf-inline-error" *ngIf="!loading && error">{{ error }}</p>
+
+<ng-container *ngIf="!loading && data as dashboard">
+  <div class="dashboard-grid">
+    <section class="stats-grid">
+      <app-stat-card
+        label="Ventas del día"
+        [value]="currency(dashboard.salesToday)"
+        hint="Ingresos registrados hoy"
+        icon="payments"
+      ></app-stat-card>
+      <app-stat-card
+        label="Ventas del mes"
+        [value]="currency(dashboard.salesMonth)"
+        hint="Acumulado comercial"
+        icon="trending_up"
+      ></app-stat-card>
+      <app-stat-card
+        label="Compras del mes"
+        [value]="currency(dashboard.purchasesMonth)"
+        hint="Abastecimiento del período"
+        icon="shopping_cart"
+      ></app-stat-card>
+      <app-stat-card
+        label="Productos"
+        [value]="dashboard.productsCount.toString()"
+        hint="Catálogo activo"
+        icon="cake"
+      ></app-stat-card>
+      <app-stat-card
+        label="Ingredientes"
+        [value]="dashboard.ingredientsCount.toString()"
+        hint="Materias primas controladas"
+        icon="grocery"
+      ></app-stat-card>
+    </section>
+
+    <app-empty-state
+      *ngIf="!hasOperationalData"
+      icon="sentiment_satisfied"
+      title="Todo listo para empezar"
+      description="Todavía no hay movimientos registrados. Cuando empieces a vender, comprar o producir, verás aquí el resumen operativo."
+    ></app-empty-state>
+
+    <div class="dashboard-panels" *ngIf="hasOperationalData">
+      <app-section-card
+        title="Ventas de los últimos 7 días"
+        subtitle="Mide la tracción diaria sin salir del tablero."
+        icon="bar_chart"
+        eyebrow="Ritmo comercial"
+      >
+        <div class="chart-list" *ngIf="dashboard.dailySalesChart.length; else emptyDaily">
+          <div class="chart-row" *ngFor="let point of dashboard.dailySalesChart">
+            <span class="chart-label">{{ point.label }}</span>
+            <div class="chart-track">
+              <div class="chart-fill" [style.width.%]="chartWidth(point.value, dailySalesMax)"></div>
+            </div>
+            <strong>{{ currency(point.value) }}</strong>
+          </div>
         </div>
-        <strong>{{ currency(point.value) }}</strong>
-      </div>
-    </div>
-  </section>
+      </app-section-card>
 
-  <section class="card chart-card">
-    <h3>Flujo mensual</h3>
-    <div class="bar-list dual">
-      <div class="bar-row" *ngFor="let point of dashboard.monthlyFlowChart">
-        <span>{{ point.label }}</span>
-        <div class="dual-bars">
-          <div class="mini-bar sales" [style.width.%]="point.value"></div>
-          <div class="mini-bar purchases" [style.width.%]="point.secondaryValue || 0"></div>
+      <app-section-card
+        title="Flujo mensual"
+        subtitle="Compara ventas y compras recientes."
+        icon="monitoring"
+        eyebrow="Balance operativo"
+      >
+        <div class="flow-list" *ngIf="dashboard.monthlyFlowChart.length; else emptyFlow">
+          <div class="flow-row" *ngFor="let point of dashboard.monthlyFlowChart">
+            <div class="flow-row__head">
+              <strong>{{ point.label }}</strong>
+              <span>{{ currency(point.value) }} / {{ currency(point.secondaryValue || 0) }}</span>
+            </div>
+            <div class="flow-bars">
+              <div
+                class="flow-bar sales"
+                [style.width.%]="chartWidth(point.value, monthlyFlowMax)"
+              ></div>
+              <div
+                class="flow-bar purchases"
+                [style.width.%]="chartWidth(point.secondaryValue || 0, monthlyFlowMax)"
+              ></div>
+            </div>
+          </div>
         </div>
-      </div>
+      </app-section-card>
+
+      <app-section-card
+        title="Productos con mejor utilidad"
+        subtitle="Lo que más aporta a tu margen."
+        icon="workspace_premium"
+        eyebrow="Rentabilidad"
+      >
+        <ul class="metric-list" *ngIf="dashboard.topProfitableProducts.length; else emptyProfitable">
+          <li *ngFor="let item of dashboard.topProfitableProducts">
+            <div>
+              <strong>{{ item.name }}</strong>
+              <span>{{ item.secondaryValue }} unidades</span>
+            </div>
+            <strong>{{ currency(item.value) }}</strong>
+          </li>
+        </ul>
+      </app-section-card>
+
+      <app-section-card
+        title="Productos más vendidos"
+        subtitle="Los favoritos del período."
+        icon="local_fire_department"
+        eyebrow="Demanda"
+      >
+        <ul class="metric-list" *ngIf="dashboard.topSellingProducts.length; else emptySelling">
+          <li *ngFor="let item of dashboard.topSellingProducts">
+            <div>
+              <strong>{{ item.name }}</strong>
+              <span>{{ currency(item.secondaryValue) }} facturados</span>
+            </div>
+            <strong>{{ item.value }}</strong>
+          </li>
+        </ul>
+      </app-section-card>
+
+      <app-section-card
+        title="Ingredientes con stock bajo"
+        subtitle="Detecta reposiciones urgentes."
+        icon="warning"
+        eyebrow="Abastecimiento"
+      >
+        <ul class="metric-list low-stock" *ngIf="dashboard.lowStockIngredients.length; else emptyStock">
+          <li *ngFor="let item of dashboard.lowStockIngredients">
+            <div>
+              <strong>{{ item.ingredientName }}</strong>
+              <span>Mínimo {{ item.stockMinimum }}</span>
+            </div>
+            <strong>{{ item.stockCurrent }}</strong>
+          </li>
+        </ul>
+      </app-section-card>
     </div>
-  </section>
+  </div>
+</ng-container>
 
-  <section class="card">
-    <h3>Productos con mejor utilidad</h3>
-    <ul>
-      <li *ngFor="let item of dashboard.topProfitableProducts">
-        <span>{{ item.name }}</span>
-        <strong>{{ currency(item.value) }}</strong>
-      </li>
-    </ul>
-  </section>
+<ng-template #emptyDaily>
+  <app-empty-state
+    icon="show_chart"
+    title="Sin ventas recientes"
+    description="Cuando se registren ventas, aquí verás el comportamiento de los últimos 7 días."
+  ></app-empty-state>
+</ng-template>
 
-  <section class="card">
-    <h3>Productos más vendidos</h3>
-    <ul>
-      <li *ngFor="let item of dashboard.topSellingProducts">
-        <span>{{ item.name }}</span>
-        <strong>{{ item.value }}</strong>
-      </li>
-    </ul>
-  </section>
+<ng-template #emptyFlow>
+  <app-empty-state
+    icon="stacked_line_chart"
+    title="Sin flujo para mostrar"
+    description="Todavía no hay suficientes movimientos de compras o ventas para construir esta vista."
+  ></app-empty-state>
+</ng-template>
 
-  <section class="card">
-    <h3>Ingredientes con stock bajo</h3>
-    <ul>
-      <li *ngFor="let item of dashboard.lowStockIngredients">
-        <span>{{ item.ingredientName }}</span>
-        <strong>{{ item.stockCurrent }} / {{ item.stockMinimum }}</strong>
-      </li>
-    </ul>
-  </section>
-</div>
+<ng-template #emptyProfitable>
+  <app-empty-state
+    icon="savings"
+    title="Sin utilidad registrada"
+    description="La rentabilidad aparecerá cuando existan ventas con receta activa."
+  ></app-empty-state>
+</ng-template>
 
-<ng-template #loadingState>
-  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+<ng-template #emptySelling>
+  <app-empty-state
+    icon="shoppingmode"
+    title="Sin productos vendidos"
+    description="Aún no hay ventas registradas para rankear productos."
+  ></app-empty-state>
+</ng-template>
+
+<ng-template #emptyStock>
+  <app-empty-state
+    icon="verified"
+    title="Sin alertas críticas"
+    description="Por ahora no hay ingredientes por debajo de su stock mínimo."
+  ></app-empty-state>
 </ng-template>

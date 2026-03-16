@@ -7,6 +7,7 @@ import { CrudColumnConfig, CrudFieldConfig } from '../../shared/components/maste
     <app-master-crud-page
       title="Clientes"
       description="Administra los clientes frecuentes y sus datos de contacto."
+      icon="groups"
       endpoint="customers"
       [columns]="columns"
       [fields]="fields"

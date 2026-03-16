@@ -1,43 +1,83 @@
 <mat-sidenav-container class="shell-container">
-  <mat-sidenav mode="side" opened class="shell-sidenav">
+  <mat-sidenav
+    [mode]="isMobile ? 'over' : 'side'"
+    [opened]="isMobile ? mobileNavOpen : true"
+    [fixedInViewport]="isMobile"
+    class="shell-sidenav"
+    [class.is-collapsed]="isNavCollapsed && !isMobile"
+  >
     <div class="brand">
       <span class="brand-mark">BF</span>
-      <div>
+      <div class="brand-copy" *ngIf="!isNavCollapsed || isMobile">
         <strong>BakeryFlow</strong>
-        <p>Operación diaria</p>
+        <p>Operación pastelera</p>
       </div>
     </div>
 
-    <a
-      *ngFor="let item of navItems"
-      mat-list-item
-      [routerLink]="item.route"
-      routerLinkActive="active-link"
-      class="nav-link"
-    >
-      {{ item.label }}
-    </a>
+    <div class="nav-scroll">
+      <section class="nav-group" *ngFor="let group of navGroups">
+        <p class="nav-group__title" *ngIf="!isNavCollapsed || isMobile">{{ group.label }}</p>
 
-    <ng-container *ngIf="isAdmin">
-      <a
-        *ngFor="let item of adminNavItems"
-        mat-list-item
-        [routerLink]="item.route"
-        routerLinkActive="active-link"
-        class="nav-link"
-      >
-        {{ item.label }}
-      </a>
-    </ng-container>
+        <a
+          *ngFor="let item of group.items"
+          mat-list-item
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+          class="nav-link"
+          (click)="handleNavigation()"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span *ngIf="!isNavCollapsed || isMobile">{{ item.label }}</span>
+        </a>
+      </section>
+
+      <section class="nav-group" *ngIf="isAdmin">
+        <p class="nav-group__title" *ngIf="!isNavCollapsed || isMobile">Configuración</p>
+        <a
+          *ngFor="let item of adminNavItems"
+          mat-list-item
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          class="nav-link"
+          (click)="handleNavigation()"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span *ngIf="!isNavCollapsed || isMobile">{{ item.label }}</span>
+        </a>
+      </section>
+    </div>
+
+    <footer class="sidenav-footer" *ngIf="!isNavCollapsed || isMobile">
+      <div class="user-pill">
+        <span class="user-pill__avatar">{{ currentUserName.charAt(0) }}</span>
+        <div>
+          <strong>{{ currentUserName }}</strong>
+          <p>{{ isAdmin ? 'Administrador' : 'Operador' }}</p>
+        </div>
+      </div>
+    </footer>
   </mat-sidenav>
 
   <mat-sidenav-content>
     <mat-toolbar class="shell-toolbar">
-      <div>
-        <p class="toolbar-caption">Panadería y pastelería</p>
-        <span class="toolbar-title">BakeryFlow</span>
+      <div class="toolbar-leading">
+        <button mat-icon-button type="button" (click)="toggleNav()" class="toolbar-icon-button">
+          <mat-icon>{{ isMobile ? 'menu' : isNavCollapsed ? 'menu' : 'menu_open' }}</mat-icon>
+        </button>
+        <div>
+          <p class="toolbar-caption">Panadería y pastelería</p>
+          <span class="toolbar-title">BakeryFlow</span>
+        </div>
       </div>
-      <button mat-stroked-button type="button" (click)="logout()">Salir</button>
+
+      <div class="toolbar-actions">
+        <div class="toolbar-badge">
+          <mat-icon>storefront</mat-icon>
+          <span>Operación diaria</span>
+        </div>
+        <button mat-stroked-button type="button" (click)="logout()">Salir</button>
+      </div>
     </mat-toolbar>
 
     <main class="shell-content">

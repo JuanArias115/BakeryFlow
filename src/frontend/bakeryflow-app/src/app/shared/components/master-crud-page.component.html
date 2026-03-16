@@ -1,9 +1,14 @@
 <section class="master-page">
   <div class="panel panel-form">
-    <app-page-header [title]="title" [description]="description"></app-page-header>
+    <app-page-header [title]="title" [description]="description" [icon]="icon"></app-page-header>
 
-    <form [formGroup]="form" class="entity-form" (ngSubmit)="submit()">
-      <ng-container *ngFor="let field of fields">
+    <div class="form-intro">
+      <span class="form-intro__badge">{{ editingId ? 'Modo edición' : 'Nuevo registro' }}</span>
+      <p>Completa los datos principales y guarda para reflejar los cambios en el catálogo.</p>
+    </div>
+
+    <form [formGroup]="form" class="entity-form bf-form-grid" (ngSubmit)="submit()">
+      <ng-container *ngFor="let field of fields; trackBy: trackByKey">
         <mat-form-field appearance="outline" *ngIf="field.type !== 'checkbox'">
           <mat-label>{{ field.label }}</mat-label>
 
@@ -22,55 +27,78 @@
             [step]="field.step || '0.01'"
           />
 
-          <textarea
-            *ngIf="field.type === 'textarea'"
-            matInput
-            rows="3"
-            [formControlName]="field.key"
-          ></textarea>
+          <textarea *ngIf="field.type === 'textarea'" matInput rows="3" [formControlName]="field.key"></textarea>
 
           <mat-select *ngIf="field.type === 'select'" [formControlName]="field.key">
             <mat-option *ngFor="let option of options[field.key] || []" [value]="option.id">
               {{ option.label }}
             </mat-option>
           </mat-select>
+
+          <mat-error *ngIf="fieldError(field.key)">{{ fieldError(field.key) }}</mat-error>
         </mat-form-field>
 
-        <mat-checkbox *ngIf="field.type === 'checkbox'" [formControlName]="field.key">
-          {{ field.label }}
-        </mat-checkbox>
+        <label *ngIf="field.type === 'checkbox'" class="checkbox-card">
+          <mat-checkbox [formControlName]="field.key">{{ field.label }}</mat-checkbox>
+        </label>
       </ng-container>
 
-      <div class="form-actions">
-        <button mat-flat-button color="primary" type="submit">
-          {{ editingId ? 'Actualizar' : 'Crear' }}
+      <div class="form-actions bf-form-actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
+          <mat-icon>{{ editingId ? 'save' : 'add_circle' }}</mat-icon>
+          {{ submitting ? 'Guardando...' : editingId ? 'Actualizar' : 'Crear' }}
         </button>
-        <button mat-stroked-button type="button" (click)="resetForm()">Limpiar</button>
+        <button mat-stroked-button type="button" (click)="resetForm()">
+          <mat-icon>refresh</mat-icon>
+          Limpiar
+        </button>
       </div>
     </form>
   </div>
 
-  <div class="panel panel-table">
+  <div class="panel panel-table bf-table-shell">
     <div class="table-toolbar">
       <mat-form-field appearance="outline">
         <mat-label>Buscar</mat-label>
         <input matInput [value]="search" (keyup)="onSearchChange(($any($event.target)).value)" />
       </mat-form-field>
-      <span class="error" *ngIf="error">{{ error }}</span>
+
+      <div class="table-toolbar__meta">
+        <span class="table-count">{{ totalCount }} registros</span>
+      </div>
     </div>
 
-    <div class="table-wrapper" *ngIf="!loading; else loadingState">
+    <p class="bf-inline-error" *ngIf="error">{{ error }}</p>
+
+    <div class="bf-table-wrap" *ngIf="!loading && !isEmpty && !error; else stateBlock">
       <table mat-table [dataSource]="items">
         <ng-container *ngFor="let column of columns" [matColumnDef]="column.key">
           <th mat-header-cell *matHeaderCellDef>{{ column.label }}</th>
-          <td mat-cell *matCellDef="let item">{{ renderValue(item, column) }}</td>
+          <td mat-cell *matCellDef="let item">
+            <ng-container [ngSwitch]="column.type">
+              <span
+                *ngSwitchCase="'boolean'"
+                class="bf-status-chip"
+                [class.is-active]="!!item[column.key]"
+                [class.is-inactive]="!item[column.key]"
+              >
+                <mat-icon>{{ item[column.key] ? 'check_circle' : 'pause_circle' }}</mat-icon>
+                {{ renderValue(item, column) }}
+              </span>
+              <span *ngSwitchDefault>{{ renderValue(item, column) }}</span>
+            </ng-container>
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Acciones</th>
           <td mat-cell *matCellDef="let item" class="actions-cell">
-            <button mat-button type="button" (click)="edit(item)">Editar</button>
-            <button mat-button type="button" (click)="toggleStatus(item)">
+            <button mat-stroked-button type="button" (click)="edit(item)">
+              <mat-icon>edit</mat-icon>
+              Editar
+            </button>
+            <button mat-stroked-button type="button" (click)="toggleStatus(item)" [disabled]="submitting">
+              <mat-icon>{{ item['isActive'] ? 'visibility_off' : 'check_circle' }}</mat-icon>
               {{ item['isActive'] ? 'Desactivar' : 'Activar' }}
             </button>
           </td>
@@ -81,10 +109,20 @@
       </table>
     </div>
 
-    <ng-template #loadingState>
-      <div class="loading-state">
-        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-      </div>
+    <ng-template #stateBlock>
+      <app-loading-state
+        *ngIf="loading"
+        title="Cargando catálogo"
+        description="Estamos trayendo los registros más recientes."
+        [rows]="6"
+      ></app-loading-state>
+
+      <app-empty-state
+        *ngIf="isEmpty"
+        icon="inventory"
+        title="Todavía no hay registros"
+        description="Crea el primer elemento desde el formulario lateral para empezar a trabajar."
+      ></app-empty-state>
     </ng-template>
 
     <mat-paginator

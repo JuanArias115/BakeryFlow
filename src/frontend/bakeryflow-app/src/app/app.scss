@@ -1,3 +1,32 @@
 :host {
   display: block;
 }
+
+.global-loader {
+  position: fixed;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 4px;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.global-loader__bar {
+  display: block;
+  width: 30%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--bf-primary) 0%, var(--bf-primary-strong) 52%, var(--bf-brown) 100%);
+  box-shadow: 0 8px 18px rgba(221, 95, 146, 0.3);
+  animation: progressSlide 1.25s infinite ease-in-out;
+}
+
+@keyframes progressSlide {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  100% {
+    transform: translateX(430%);
+  }
+}

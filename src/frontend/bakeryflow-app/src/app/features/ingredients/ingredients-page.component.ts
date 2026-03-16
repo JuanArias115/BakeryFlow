@@ -7,6 +7,7 @@ import { CrudColumnConfig, CrudFieldConfig } from '../../shared/components/maste
     <app-master-crud-page
       title="Ingredientes y materias primas"
       description="Controla stock, costo promedio y unidad de medida."
+      icon="egg_alt"
       endpoint="ingredients"
       [columns]="columns"
       [fields]="fields"

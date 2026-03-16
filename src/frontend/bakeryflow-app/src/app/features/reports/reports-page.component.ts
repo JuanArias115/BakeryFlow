@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { ApiService } from '../../core/services/api.service';
+import { forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ApiService } from '../../core/services/api.service';
 
 @Component({
   selector: 'app-reports-page',
@@ -16,6 +17,9 @@ export class ReportsPageComponent implements OnInit {
   inventory: unknown[] = [];
   costs: unknown[] = [];
   profitability: unknown[] = [];
+  loading = true;
+  error = '';
+
   readonly filters;
 
   constructor(
@@ -34,12 +38,30 @@ export class ReportsPageComponent implements OnInit {
   }
 
   loadReports(): void {
+    this.loading = true;
+    this.error = '';
     const filters = this.filters.getRawValue();
-    this.apiService.get<unknown[]>('reports/purchases', filters).subscribe((data) => (this.purchases = data));
-    this.apiService.get<unknown[]>('reports/sales', filters).subscribe((data) => (this.sales = data));
-    this.apiService.get<unknown[]>('reports/inventory').subscribe((data) => (this.inventory = data));
-    this.apiService.get<unknown[]>('reports/product-costs').subscribe((data) => (this.costs = data));
-    this.apiService.get<unknown[]>('reports/product-profitability', filters).subscribe((data) => (this.profitability = data));
+
+    forkJoin({
+      purchases: this.apiService.get<unknown[]>('reports/purchases', filters),
+      sales: this.apiService.get<unknown[]>('reports/sales', filters),
+      inventory: this.apiService.get<unknown[]>('reports/inventory'),
+      costs: this.apiService.get<unknown[]>('reports/product-costs'),
+      profitability: this.apiService.get<unknown[]>('reports/product-profitability', filters),
+    }).subscribe({
+      next: (result) => {
+        this.purchases = result.purchases;
+        this.sales = result.sales;
+        this.inventory = result.inventory;
+        this.costs = result.costs;
+        this.profitability = result.profitability;
+        this.loading = false;
+      },
+      error: (error: { error?: { message?: string } }) => {
+        this.error = error.error?.message ?? 'No se pudieron cargar los reportes.';
+        this.loading = false;
+      },
+    });
   }
 
   downloadCsv(endpoint: string, fileName: string): void {
@@ -56,5 +78,9 @@ export class ReportsPageComponent implements OnInit {
         anchor.click();
         window.URL.revokeObjectURL(url);
       });
+  }
+
+  formatJson(value: unknown[]): string {
+    return JSON.stringify(value, null, 2);
   }
 }

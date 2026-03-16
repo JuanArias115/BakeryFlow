@@ -7,6 +7,7 @@ import { CrudColumnConfig, CrudFieldConfig } from '../../shared/components/maste
     <app-master-crud-page
       title="Unidades de medida"
       description="Define las unidades usadas en ingredientes, compras y recetas."
+      icon="straighten"
       endpoint="units"
       [columns]="columns"
       [fields]="fields"

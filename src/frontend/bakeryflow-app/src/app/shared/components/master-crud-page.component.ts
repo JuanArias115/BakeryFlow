@@ -31,13 +31,15 @@ export class MasterCrudPageComponent implements OnInit {
   @Input({ required: true }) endpoint = '';
   @Input({ required: true }) columns: CrudColumnConfig[] = [];
   @Input({ required: true }) fields: CrudFieldConfig[] = [];
+  @Input() icon = 'inventory_2';
 
   items: Record<string, unknown>[] = [];
   totalCount = 0;
   pageSize = 10;
   page = 1;
   search = '';
-  loading = false;
+  loading = true;
+  submitting = false;
   error = '';
   form!: FormGroup;
   editingId: string | null = null;
@@ -67,7 +69,6 @@ export class MasterCrudPageComponent implements OnInit {
 
   loadItems(): void {
     this.loading = true;
-    this.error = '';
     this.crudResourceService
       .getPaged<Record<string, unknown>>(this.endpoint, {
         page: this.page,
@@ -78,11 +79,15 @@ export class MasterCrudPageComponent implements OnInit {
         next: (result: PagedResult<Record<string, unknown>>) => {
           this.items = result.items;
           this.totalCount = result.totalCount;
+          this.error = '';
           this.loading = false;
+          this.submitting = false;
         },
         error: (error: { error?: { message?: string } }) => {
           this.error = error.error?.message ?? 'No se pudo cargar la información.';
+          this.items = [];
           this.loading = false;
+          this.submitting = false;
         },
       });
   }
@@ -93,7 +98,9 @@ export class MasterCrudPageComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
+    this.submitting = true;
+    this.error = '';
+
     const payload = this.form.getRawValue();
     const request$ = this.editingId
       ? this.crudResourceService.update(this.endpoint, this.editingId, payload)
@@ -106,7 +113,7 @@ export class MasterCrudPageComponent implements OnInit {
       },
       error: (error: { error?: { message?: string } }) => {
         this.error = error.error?.message ?? 'No se pudo guardar el registro.';
-        this.loading = false;
+        this.submitting = false;
       },
     });
   }
@@ -117,12 +124,13 @@ export class MasterCrudPageComponent implements OnInit {
   }
 
   toggleStatus(item: Record<string, unknown>): void {
-    this.loading = true;
+    this.submitting = true;
+    this.error = '';
     this.crudResourceService.toggleStatus(this.endpoint, String(item['id'])).subscribe({
       next: () => this.loadItems(),
       error: (error: { error?: { message?: string } }) => {
         this.error = error.error?.message ?? 'No se pudo cambiar el estado.';
-        this.loading = false;
+        this.submitting = false;
       },
     });
   }
@@ -133,7 +141,7 @@ export class MasterCrudPageComponent implements OnInit {
     this.fields.forEach((field) => {
       this.form.get(field.key)?.setValue(field.type === 'checkbox' ? true : '');
     });
-    this.loading = false;
+    this.submitting = false;
   }
 
   onSearchChange(value: string): void {
@@ -167,6 +175,31 @@ export class MasterCrudPageComponent implements OnInit {
     }
 
     return String(value);
+  }
+
+  get isEmpty(): boolean {
+    return !this.loading && !this.error && this.items.length === 0;
+  }
+
+  trackByKey(_index: number, field: CrudFieldConfig): string {
+    return field.key;
+  }
+
+  fieldError(fieldKey: string): string {
+    const control = this.form.get(fieldKey);
+    if (!control || !control.touched || !control.errors) {
+      return '';
+    }
+
+    if (control.errors['required']) {
+      return 'Este campo es obligatorio.';
+    }
+
+    if (control.errors['email']) {
+      return 'Ingresa un correo válido.';
+    }
+
+    return 'Revisa este dato.';
   }
 
   private loadOptions(): void {

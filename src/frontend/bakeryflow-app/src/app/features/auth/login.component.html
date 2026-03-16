@@ -1,25 +1,72 @@
 <section class="login-page">
-  <div class="login-card">
-    <p class="eyebrow">BakeryFlow</p>
-    <h1>Control operativo para tu panadería</h1>
+  <div class="login-hero">
+    <div class="brand-lockup">
+      <span class="brand-mark">BF</span>
+      <div>
+        <p class="eyebrow">BakeryFlow</p>
+        <h1>Control diario para una operación pastelera impecable.</h1>
+      </div>
+    </div>
+
     <p class="intro">
-      Administra productos, ingredientes, producción, compras y ventas desde un solo tablero.
+      Organiza ventas, recetas, compras, producción e inventario desde una sola vista clara y cálida.
     </p>
+
+    <div class="hero-panels">
+      <article class="hero-panel">
+        <mat-icon>dashboard</mat-icon>
+        <div>
+          <strong>Resumen operativo</strong>
+          <p>KPIs, stock bajo y productos destacados en un tablero legible.</p>
+        </div>
+      </article>
+
+      <article class="hero-panel">
+        <mat-icon>bakery_dining</mat-icon>
+        <div>
+          <strong>Flujo de producción</strong>
+          <p>Recetas, costeo y consumo de materias primas con foco práctico.</p>
+        </div>
+      </article>
+
+      <article class="hero-panel">
+        <mat-icon>inventory_2</mat-icon>
+        <div>
+          <strong>Inventario controlado</strong>
+          <p>Movimientos, ajustes y abastecimiento con alertas claras.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-card__head">
+      <p class="eyebrow">Acceso seguro</p>
+      <h2>Ingresa a tu espacio de trabajo</h2>
+      <p>Usa tus credenciales para continuar con la operación diaria.</p>
+    </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()">
       <mat-form-field appearance="outline">
         <mat-label>Correo</mat-label>
         <input matInput type="email" formControlName="email" />
+        <mat-error *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+          Ingresa un correo válido.
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Contraseña</mat-label>
         <input matInput type="password" formControlName="password" />
+        <mat-error *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
+          La contraseña es obligatoria.
+        </mat-error>
       </mat-form-field>
 
       <p class="error" *ngIf="error">{{ error }}</p>
 
       <button mat-flat-button color="primary" type="submit" [disabled]="loading">
+        <mat-icon>{{ loading ? 'hourglass_top' : 'login' }}</mat-icon>
         {{ loading ? 'Ingresando...' : 'Ingresar' }}
       </button>
     </form>

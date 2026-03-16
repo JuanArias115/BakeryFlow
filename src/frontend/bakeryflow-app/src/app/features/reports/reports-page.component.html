@@ -1,10 +1,13 @@
 <app-page-header
   title="Reportes"
-  description="Consulta compras, ventas, inventario y utilidad por producto con filtros simples."
-></app-page-header>
+  description="Consulta compras, ventas, inventario y utilidad con filtros rápidos y exportación CSV."
+  icon="analytics"
+>
+  <span class="header-pill">Vista analítica</span>
+</app-page-header>
 
-<section class="card filters">
-  <form [formGroup]="filters">
+<app-section-card title="Filtros" subtitle="Refina el periodo y exporta la información necesaria." icon="tune" eyebrow="Consulta">
+  <form [formGroup]="filters" class="filters-form bf-form-grid">
     <mat-form-field appearance="outline">
       <mat-label>Desde</mat-label>
       <input matInput type="date" formControlName="from" />
@@ -13,17 +16,84 @@
       <mat-label>Hasta</mat-label>
       <input matInput type="date" formControlName="to" />
     </mat-form-field>
-    <button mat-flat-button color="primary" type="button" (click)="loadReports()">Aplicar filtros</button>
-    <button mat-stroked-button type="button" (click)="downloadCsv('purchases', 'compras.csv')">CSV compras</button>
-    <button mat-stroked-button type="button" (click)="downloadCsv('sales', 'ventas.csv')">CSV ventas</button>
-    <button mat-stroked-button type="button" (click)="downloadCsv('inventory', 'inventario.csv')">CSV inventario</button>
+    <div class="filters-actions bf-form-actions">
+      <button mat-flat-button color="primary" type="button" (click)="loadReports()">
+        <mat-icon>filter_alt</mat-icon>
+        Aplicar filtros
+      </button>
+      <button mat-stroked-button type="button" (click)="downloadCsv('purchases', 'compras.csv')">
+        <mat-icon>download</mat-icon>
+        CSV compras
+      </button>
+      <button mat-stroked-button type="button" (click)="downloadCsv('sales', 'ventas.csv')">
+        <mat-icon>download</mat-icon>
+        CSV ventas
+      </button>
+      <button mat-stroked-button type="button" (click)="downloadCsv('inventory', 'inventario.csv')">
+        <mat-icon>download</mat-icon>
+        CSV inventario
+      </button>
+    </div>
   </form>
-</section>
+</app-section-card>
 
-<div class="reports-grid">
-  <section class="card"><h3>Compras</h3><pre>{{ purchases | json }}</pre></section>
-  <section class="card"><h3>Ventas</h3><pre>{{ sales | json }}</pre></section>
-  <section class="card"><h3>Inventario actual</h3><pre>{{ inventory | json }}</pre></section>
-  <section class="card"><h3>Costo por producto</h3><pre>{{ costs | json }}</pre></section>
-  <section class="card"><h3>Utilidad por producto</h3><pre>{{ profitability | json }}</pre></section>
+<app-loading-state
+  *ngIf="loading"
+  title="Construyendo reportes"
+  description="Estamos consolidando compras, ventas, inventario y márgenes."
+  [rows]="6"
+></app-loading-state>
+
+<p class="bf-inline-error" *ngIf="!loading && error">{{ error }}</p>
+
+<div class="reports-grid" *ngIf="!loading && !error">
+  <app-section-card title="Compras" subtitle="Movimientos por proveedor y fecha." icon="shopping_bag" eyebrow="Reporte">
+    <app-empty-state
+      *ngIf="!purchases.length"
+      icon="shopping_basket"
+      title="Sin compras en el filtro"
+      description="Ajusta el rango de fechas o registra compras para ver resultados."
+    ></app-empty-state>
+    <pre *ngIf="purchases.length">{{ formatJson(purchases) }}</pre>
+  </app-section-card>
+
+  <app-section-card title="Ventas" subtitle="Ingresos y utilidad básica del periodo." icon="point_of_sale" eyebrow="Reporte">
+    <app-empty-state
+      *ngIf="!sales.length"
+      icon="receipt_long"
+      title="Sin ventas para mostrar"
+      description="Cuando existan ventas registradas, aparecerán aquí."
+    ></app-empty-state>
+    <pre *ngIf="sales.length">{{ formatJson(sales) }}</pre>
+  </app-section-card>
+
+  <app-section-card title="Inventario actual" subtitle="Estado consolidado de materias primas." icon="inventory_2" eyebrow="Reporte">
+    <app-empty-state
+      *ngIf="!inventory.length"
+      icon="warehouse"
+      title="Sin inventario calculado"
+      description="No hay datos suficientes para construir este reporte todavía."
+    ></app-empty-state>
+    <pre *ngIf="inventory.length">{{ formatJson(inventory) }}</pre>
+  </app-section-card>
+
+  <app-section-card title="Costo por producto" subtitle="Resumen de costeo actualizado." icon="attach_money" eyebrow="Reporte">
+    <app-empty-state
+      *ngIf="!costs.length"
+      icon="calculate"
+      title="Sin costos calculados"
+      description="Agrega recetas activas para visualizar el costo estimado por producto."
+    ></app-empty-state>
+    <pre *ngIf="costs.length">{{ formatJson(costs) }}</pre>
+  </app-section-card>
+
+  <app-section-card title="Utilidad por producto" subtitle="Margen acumulado por artículo vendido." icon="workspace_premium" eyebrow="Reporte">
+    <app-empty-state
+      *ngIf="!profitability.length"
+      icon="insights"
+      title="Sin utilidad registrada"
+      description="La rentabilidad aparecerá cuando el periodo tenga ventas con receta activa."
+    ></app-empty-state>
+    <pre *ngIf="profitability.length">{{ formatJson(profitability) }}</pre>
+  </app-section-card>
 </div>

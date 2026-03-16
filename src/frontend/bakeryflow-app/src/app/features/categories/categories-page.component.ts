@@ -7,6 +7,7 @@ import { CrudColumnConfig, CrudFieldConfig } from '../../shared/components/maste
     <app-master-crud-page
       title="Categorías"
       description="Organiza los productos por familias y controla su estado."
+      icon="category"
       endpoint="categories"
       [columns]="columns"
       [fields]="fields"

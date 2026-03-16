@@ -7,6 +7,7 @@ import { CrudColumnConfig, CrudFieldConfig } from '../../shared/components/maste
     <app-master-crud-page
       title="Proveedores"
       description="Mantén tu base de proveedores y contactos de compra."
+      icon="local_shipping"
       endpoint="suppliers"
       [columns]="columns"
       [fields]="fields"

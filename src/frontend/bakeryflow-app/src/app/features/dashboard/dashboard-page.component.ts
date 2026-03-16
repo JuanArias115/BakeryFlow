@@ -42,6 +42,7 @@ interface DashboardData {
 })
 export class DashboardPageComponent implements OnInit {
   loading = true;
+  error = '';
   data: DashboardData | null = null;
 
   constructor(private readonly apiService: ApiService) {}
@@ -50,9 +51,12 @@ export class DashboardPageComponent implements OnInit {
     this.apiService.get<DashboardData>('dashboard').subscribe({
       next: (data) => {
         this.data = data;
+        this.error = '';
         this.loading = false;
       },
-      error: () => {
+      error: (error: { error?: { message?: string } }) => {
+        this.error = error.error?.message ?? 'No se pudo cargar el dashboard.';
+        this.data = null;
         this.loading = false;
       },
     });
@@ -60,5 +64,38 @@ export class DashboardPageComponent implements OnInit {
 
   currency(value: number): string {
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(value);
+  }
+
+  chartWidth(value: number, maxValue: number): number {
+    if (!maxValue) {
+      return 0;
+    }
+
+    return Math.max(8, (value / maxValue) * 100);
+  }
+
+  get hasOperationalData(): boolean {
+    if (!this.data) {
+      return false;
+    }
+
+    return (
+      this.data.salesToday > 0 ||
+      this.data.salesMonth > 0 ||
+      this.data.purchasesMonth > 0 ||
+      this.data.topProfitableProducts.length > 0 ||
+      this.data.topSellingProducts.length > 0 ||
+      this.data.lowStockIngredients.length > 0
+    );
+  }
+
+  get dailySalesMax(): number {
+    return Math.max(...(this.data?.dailySalesChart.map((point) => point.value) ?? [0]));
+  }
+
+  get monthlyFlowMax(): number {
+    return Math.max(
+      ...(this.data?.monthlyFlowChart.flatMap((point) => [point.value, point.secondaryValue ?? 0]) ?? [0]),
+    );
   }
 }

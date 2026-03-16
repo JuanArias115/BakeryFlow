@@ -1,9 +1,27 @@
 .stat-card {
-  padding: 1.2rem;
-  border-radius: 1.25rem;
-  background: linear-gradient(180deg, #ffffff 0%, #fff5f8 100%);
-  border: 1px solid rgba(221, 95, 146, 0.18);
-  box-shadow: 0 12px 30px rgba(112, 79, 67, 0.08);
+  position: relative;
+  padding: 1.15rem;
+  border-radius: 1.35rem;
+  background: linear-gradient(180deg, #ffffff 0%, #fff7f5 100%);
+  border: 1px solid rgba(221, 95, 146, 0.14);
+  box-shadow: 0 14px 30px rgba(112, 79, 67, 0.08);
+}
+
+.stat-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.stat-card__icon {
+  width: 2.6rem;
+  height: 2.6rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.95rem;
+  background: rgba(242, 154, 188, 0.14);
+  color: var(--bf-primary-strong);
 }
 
 .label,
@@ -13,7 +31,12 @@
 }
 
 h3 {
-  margin: 0.55rem 0 0.25rem;
+  margin: 0.55rem 0 0.15rem;
   color: var(--bf-text);
-  font-size: 1.85rem;
+  font-family: 'Fraunces', serif;
+  font-size: 1.9rem;
+}
+
+.hint {
+  margin-top: 0.35rem;
 }

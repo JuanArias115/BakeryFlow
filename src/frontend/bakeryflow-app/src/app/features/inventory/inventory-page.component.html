@@ -1,9 +1,12 @@
 <app-page-header
   title="Inventario de materias primas"
   description="Consulta existencias, movimientos y registra ajustes manuales."
+  icon="inventory_2"
 ></app-page-header>
 
 <div class="inventory-grid">
+  <p class="bf-inline-error" *ngIf="error">{{ error }}</p>
+
   <section class="card">
     <h3>Ajuste manual</h3>
     <form [formGroup]="form" (ngSubmit)="submitAdjustment()" class="adjustment-form">
@@ -35,7 +38,14 @@
 
   <section class="card">
     <h3>Existencias actuales</h3>
-    <table mat-table [dataSource]="stocks">
+    <app-loading-state
+      *ngIf="loading"
+      title="Cargando existencias"
+      description="Estamos consultando stock y costos promedio."
+      [rows]="5"
+      [compact]="true"
+    ></app-loading-state>
+    <table mat-table [dataSource]="stocks" *ngIf="!loading">
       <ng-container matColumnDef="ingredientName">
         <th mat-header-cell *matHeaderCellDef>Ingrediente</th>
         <td mat-cell *matCellDef="let item">{{ item.ingredientName }}</td>

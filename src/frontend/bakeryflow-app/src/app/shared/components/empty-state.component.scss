@@ -1,0 +1,34 @@
+.empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 0.9rem;
+  padding: 1.5rem;
+  border: 1px dashed rgba(221, 95, 146, 0.28);
+  border-radius: 1.4rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(246, 237, 231, 0.72) 100%);
+}
+
+.icon-wrap {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1rem;
+  background: rgba(242, 154, 188, 0.18);
+  color: var(--bf-primary-strong);
+}
+
+.copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.copy h3,
+.copy p {
+  margin: 0;
+}
+
+.copy p {
+  color: var(--bf-text-muted);
+  max-width: 36rem;
+}

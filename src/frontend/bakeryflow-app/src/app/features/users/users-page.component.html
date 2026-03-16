@@ -1,12 +1,20 @@
 <app-page-header
   title="Usuarios"
-  description="Solo los administradores pueden crear, editar, activar/desactivar usuarios y cambiar contraseñas."
-></app-page-header>
+  description="Controla accesos, roles y estado de cada miembro del equipo administrativo."
+  icon="manage_accounts"
+>
+  <span class="header-pill">Solo Admin</span>
+</app-page-header>
 
 <section class="users-grid">
-  <div class="card">
-    <h3>{{ editingId ? 'Editar usuario' : 'Crear usuario' }}</h3>
-    <form [formGroup]="form" (ngSubmit)="submit()" class="user-form">
+  <app-section-card
+    class="form-card"
+    [title]="editingId ? 'Editar usuario' : 'Crear usuario'"
+    subtitle="Define nombre, correo, rol, estado y contraseña inicial."
+    icon="person_add"
+    eyebrow="Gestión interna"
+  >
+    <form [formGroup]="form" (ngSubmit)="submit()" class="user-form bf-form-grid">
       <mat-form-field appearance="outline">
         <mat-label>Nombre</mat-label>
         <input matInput formControlName="firstName" />
@@ -35,63 +43,114 @@
         <input matInput type="password" formControlName="password" />
       </mat-form-field>
 
-      <mat-checkbox formControlName="isActive">Activo</mat-checkbox>
+      <label class="checkbox-card">
+        <mat-checkbox formControlName="isActive">Activo</mat-checkbox>
+      </label>
 
-      <div class="actions">
-        <button mat-flat-button color="primary" type="submit">
-          {{ editingId ? 'Actualizar' : 'Crear' }}
+      <div class="actions bf-form-actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
+          <mat-icon>{{ editingId ? 'save' : 'person_add' }}</mat-icon>
+          {{ submitting ? 'Guardando...' : editingId ? 'Actualizar' : 'Crear' }}
         </button>
-        <button mat-stroked-button type="button" (click)="resetForm()">Limpiar</button>
+        <button mat-stroked-button type="button" (click)="resetForm()">
+          <mat-icon>refresh</mat-icon>
+          Limpiar
+        </button>
       </div>
     </form>
-  </div>
+  </app-section-card>
 
-  <div class="card">
-    <h3>Listado de usuarios</h3>
-    <p class="error" *ngIf="error">{{ error }}</p>
-    <table mat-table [dataSource]="users">
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Nombre</th>
-        <td mat-cell *matCellDef="let user">{{ user.firstName }} {{ user.lastName }}</td>
-      </ng-container>
-      <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef>Email</th>
-        <td mat-cell *matCellDef="let user">{{ user.email }}</td>
-      </ng-container>
-      <ng-container matColumnDef="role">
-        <th mat-header-cell *matHeaderCellDef>Rol</th>
-        <td mat-cell *matCellDef="let user">{{ user.role }}</td>
-      </ng-container>
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Estado</th>
-        <td mat-cell *matCellDef="let user">{{ user.isActive ? 'Activo' : 'Inactivo' }}</td>
-      </ng-container>
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Acciones</th>
-        <td mat-cell *matCellDef="let user" class="table-actions">
-          <button mat-button type="button" (click)="edit(user)">Editar</button>
-          <button mat-button type="button" (click)="toggleStatus(user)">
-            {{ user.isActive ? 'Desactivar' : 'Activar' }}
-          </button>
-          <button mat-button type="button" (click)="openPasswordDialog(user.id)">Cambiar contraseña</button>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="['name', 'email', 'role', 'status', 'actions']"></tr>
-      <tr mat-row *matRowDef="let row; columns: ['name', 'email', 'role', 'status', 'actions']"></tr>
-    </table>
-  </div>
+  <app-section-card
+    title="Listado de usuarios"
+    subtitle="Activa, desactiva o edita accesos rápidamente."
+    icon="groups"
+    eyebrow="Equipo"
+  >
+    <p class="bf-inline-error" *ngIf="error">{{ error }}</p>
+
+    <app-loading-state
+      *ngIf="loading"
+      title="Cargando usuarios"
+      description="Estamos preparando la lista del equipo."
+      [rows]="5"
+    ></app-loading-state>
+
+    <app-empty-state
+      *ngIf="isEmpty"
+      icon="group_off"
+      title="No hay usuarios adicionales"
+      description="Crea el primer usuario desde el formulario para delegar tareas en la operación."
+    ></app-empty-state>
+
+    <div class="bf-table-wrap" *ngIf="!loading && !isEmpty && !error">
+      <table mat-table [dataSource]="users">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let user">{{ user.firstName }} {{ user.lastName }}</td>
+        </ng-container>
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+        </ng-container>
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef>Rol</th>
+          <td mat-cell *matCellDef="let user">{{ user.role }}</td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="bf-status-chip" [class.is-active]="user.isActive" [class.is-inactive]="!user.isActive">
+              <mat-icon>{{ user.isActive ? 'check_circle' : 'pause_circle' }}</mat-icon>
+              {{ user.isActive ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let user" class="table-actions">
+            <button mat-stroked-button type="button" (click)="edit(user)">
+              <mat-icon>edit</mat-icon>
+              Editar
+            </button>
+            <button mat-stroked-button type="button" (click)="toggleStatus(user)" [disabled]="submitting">
+              <mat-icon>{{ user.isActive ? 'visibility_off' : 'check_circle' }}</mat-icon>
+              {{ user.isActive ? 'Desactivar' : 'Activar' }}
+            </button>
+            <button mat-stroked-button type="button" (click)="openPasswordDialog(user.id)">
+              <mat-icon>password</mat-icon>
+              Contraseña
+            </button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="['name', 'email', 'role', 'status', 'actions']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['name', 'email', 'role', 'status', 'actions']"></tr>
+      </table>
+    </div>
+  </app-section-card>
 </section>
 
-<section class="card password-card" *ngIf="passwordUserId">
-  <h3>Cambiar contraseña</h3>
+<app-section-card
+  *ngIf="passwordUserId"
+  class="password-card"
+  title="Cambiar contraseña"
+  subtitle="Actualiza la clave del usuario seleccionado."
+  icon="lock_reset"
+  eyebrow="Seguridad"
+>
   <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="password-form">
     <mat-form-field appearance="outline">
       <mat-label>Nueva contraseña</mat-label>
       <input matInput type="password" formControlName="password" />
     </mat-form-field>
-    <div class="actions">
-      <button mat-flat-button color="primary" type="submit">Guardar</button>
-      <button mat-stroked-button type="button" (click)="passwordUserId = null">Cancelar</button>
+    <div class="actions bf-form-actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
+        <mat-icon>save</mat-icon>
+        Guardar
+      </button>
+      <button mat-stroked-button type="button" (click)="passwordUserId = null">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
     </div>
   </form>
-</section>
+</app-section-card>

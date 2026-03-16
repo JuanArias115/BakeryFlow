@@ -7,6 +7,7 @@ import { CrudColumnConfig, CrudFieldConfig } from '../../shared/components/maste
     <app-master-crud-page
       title="Productos"
       description="Define el catálogo comercial con precio de venta y categoría."
+      icon="cake"
       endpoint="products"
       [columns]="columns"
       [fields]="fields"

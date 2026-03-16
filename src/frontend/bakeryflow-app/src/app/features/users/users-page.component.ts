@@ -20,6 +20,8 @@ interface UserItem {
 })
 export class UsersPageComponent implements OnInit {
   users: UserItem[] = [];
+  loading = true;
+  submitting = false;
   error = '';
   editingId: string | null = null;
   passwordUserId: string | null = null;
@@ -50,12 +52,19 @@ export class UsersPageComponent implements OnInit {
   }
 
   loadUsers(): void {
+    this.loading = true;
     this.apiService.getPaged<UserItem>('users', { page: 1, pageSize: 50 }).subscribe({
       next: (result: PagedResult<UserItem>) => {
         this.users = result.items;
+        this.error = '';
+        this.loading = false;
+        this.submitting = false;
       },
       error: (error: { error?: { message?: string } }) => {
         this.error = error.error?.message ?? 'No se pudieron cargar los usuarios.';
+        this.users = [];
+        this.loading = false;
+        this.submitting = false;
       },
     });
   }
@@ -65,6 +74,9 @@ export class UsersPageComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+
+    this.submitting = true;
+    this.error = '';
 
     const raw = this.form.getRawValue();
     const payload = this.editingId
@@ -95,6 +107,7 @@ export class UsersPageComponent implements OnInit {
       },
       error: (error: { error?: { message?: string } }) => {
         this.error = error.error?.message ?? 'No se pudo guardar el usuario.';
+        this.submitting = false;
       },
     });
   }
@@ -125,13 +138,16 @@ export class UsersPageComponent implements OnInit {
     });
     this.form.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
     this.form.get('password')?.updateValueAndValidity();
+    this.submitting = false;
   }
 
   toggleStatus(user: UserItem): void {
+    this.submitting = true;
     this.apiService.patch(`users/${user.id}/toggle-status`).subscribe({
       next: () => this.loadUsers(),
       error: (error: { error?: { message?: string } }) => {
         this.error = error.error?.message ?? 'No se pudo actualizar el estado.';
+        this.submitting = false;
       },
     });
   }
@@ -147,16 +163,23 @@ export class UsersPageComponent implements OnInit {
       return;
     }
 
+    this.submitting = true;
     this.apiService
       .post(`users/${this.passwordUserId}/change-password`, this.passwordForm.getRawValue())
       .subscribe({
         next: () => {
           this.passwordUserId = null;
           this.passwordForm.reset({ password: '' });
+          this.submitting = false;
         },
         error: (error: { error?: { message?: string } }) => {
           this.error = error.error?.message ?? 'No se pudo cambiar la contraseña.';
+          this.submitting = false;
         },
       });
+  }
+
+  get isEmpty(): boolean {
+    return !this.loading && !this.error && this.users.length === 0;
   }
 }

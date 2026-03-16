@@ -33,6 +33,8 @@ export class InventoryPageComponent implements OnInit {
   stocks: InventoryStock[] = [];
   movements: InventoryMovement[] = [];
   ingredients: OptionItem[] = [];
+  loading = true;
+  error = '';
   readonly form;
 
   constructor(
@@ -57,8 +59,17 @@ export class InventoryPageComponent implements OnInit {
   }
 
   loadStocks(): void {
-    this.apiService.getPaged<InventoryStock>('inventory/stocks', { page: 1, pageSize: 30 }).subscribe((result: PagedResult<InventoryStock>) => {
-      this.stocks = result.items;
+    this.loading = true;
+    this.apiService.getPaged<InventoryStock>('inventory/stocks', { page: 1, pageSize: 30 }).subscribe({
+      next: (result: PagedResult<InventoryStock>) => {
+        this.stocks = result.items;
+        this.error = '';
+        this.loading = false;
+      },
+      error: (error: { error?: { message?: string } }) => {
+        this.error = error.error?.message ?? 'No se pudieron cargar las existencias.';
+        this.loading = false;
+      },
     });
   }
 
