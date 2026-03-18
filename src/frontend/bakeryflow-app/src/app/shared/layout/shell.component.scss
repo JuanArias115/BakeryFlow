@@ -61,16 +61,16 @@
 }
 
 .nav-scroll {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.65rem;
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
+  padding-top: 0.35rem;
   padding-right: 0.1rem;
 }
 
 .nav-group {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.35rem;
 }
 
@@ -135,7 +135,7 @@
 }
 
 .sidenav-footer {
-  margin-top: 1.25rem;
+  margin-top: auto;
   padding: 1rem 0.45rem 0;
   border-top: 1px solid rgba(112, 79, 67, 0.08);
 }

@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AdminGuard } from './core/guards/admin.guard';
 import { AuthGuard } from './core/guards/auth.guard';
+import { DashboardPageComponent } from './features/dashboard/dashboard-page.component';
 import { ShellComponent } from './shared/layout/shell.component';
 
 const routes: Routes = [
@@ -21,7 +22,7 @@ const routes: Routes = [
       },
       {
         path: 'dashboard',
-        loadChildren: () => import('./features/dashboard/dashboard.module').then((m) => m.DashboardModule),
+        component: DashboardPageComponent,
       },
       {
         path: 'categories',
