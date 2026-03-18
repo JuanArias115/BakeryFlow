@@ -1,11 +1,5 @@
-<mat-sidenav-container class="shell-container">
-  <mat-sidenav
-    [mode]="isMobile ? 'over' : 'side'"
-    [opened]="isMobile ? mobileNavOpen : true"
-    [fixedInViewport]="isMobile"
-    [disableClose]="!isMobile"
-    class="shell-sidenav"
-  >
+<div class="shell-layout">
+  <aside class="shell-sidenav" [class.is-mobile-open]="isMobile && mobileNavOpen">
     <div class="shell-sidenav__inner">
       <div class="brand">
         <span class="brand-mark">BF</span>
@@ -61,9 +55,17 @@
         </div>
       </footer>
     </div>
-  </mat-sidenav>
+  </aside>
 
-  <mat-sidenav-content class="shell-stage">
+  <button
+    *ngIf="isMobile && mobileNavOpen"
+    type="button"
+    class="shell-backdrop"
+    aria-label="Cerrar menú"
+    (click)="toggleNav()"
+  ></button>
+
+  <section class="shell-stage">
     <mat-toolbar class="shell-toolbar">
       <div class="toolbar-leading">
         <button *ngIf="isMobile" mat-icon-button type="button" (click)="toggleNav()" class="toolbar-icon-button">
@@ -87,5 +89,5 @@
     <main class="shell-content">
       <router-outlet></router-outlet>
     </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </section>
+</div>
