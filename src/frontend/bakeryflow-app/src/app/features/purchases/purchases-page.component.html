@@ -90,11 +90,21 @@
       </button>
     </div>
 
+    <p class="bf-inline-error" *ngIf="error">{{ error }}</p>
+
+    <app-loading-state
+      *ngIf="loadingReferences"
+      title="Cargando opciones"
+      description="Estamos preparando proveedores e ingredientes para esta compra."
+      [rows]="4"
+      [compact]="true"
+    ></app-loading-state>
+
     <form [formGroup]="form" (ngSubmit)="submitPurchase()" class="purchase-form">
       <div class="bf-form-grid">
         <mat-form-field appearance="fill">
           <mat-label>Proveedor</mat-label>
-          <mat-select formControlName="supplierId">
+          <mat-select formControlName="supplierId" [disabled]="loadingReferences">
             <mat-option *ngFor="let supplier of suppliers" [value]="supplier.id">{{ supplier.label }}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -118,7 +128,7 @@
       <div class="lines-panel">
         <div class="lines-panel__header">
           <h4>Ítems</h4>
-          <button mat-stroked-button type="button" (click)="addLine()">
+          <button mat-stroked-button type="button" (click)="addLine()" [disabled]="loadingReferences">
             <mat-icon>add</mat-icon>
             Agregar ítem
           </button>
@@ -132,7 +142,7 @@
             <div class="line-card__grid">
               <mat-form-field appearance="fill">
                 <mat-label>Ingrediente</mat-label>
-                <mat-select formControlName="ingredientId" (selectionChange)="onIngredientChange(i)">
+                <mat-select formControlName="ingredientId" (selectionChange)="onIngredientChange(i)" [disabled]="loadingReferences">
                   <mat-option *ngFor="let ingredient of ingredients" [value]="ingredient.id">{{ ingredient.name }}</mat-option>
                 </mat-select>
               </mat-form-field>

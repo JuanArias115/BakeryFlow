@@ -39,6 +39,9 @@
 .dialog-shell {
   display: grid;
   gap: 1.5rem;
+  padding: 1.6rem;
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
 }
 
 .purchase-form,
@@ -46,6 +49,10 @@
 .lines-list {
   display: grid;
   gap: 1rem;
+}
+
+.purchase-form {
+  min-width: 0;
 }
 
 .line-card {
@@ -96,17 +103,27 @@
 }
 
 @media (max-width: 1100px) {
+  .bf-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .line-card__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .line-card__grid--secondary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 720px) {
+  .dialog-shell,
   .card,
   .line-card {
     padding: 1rem;
   }
 
+  .bf-form-grid,
   .card-toolbar,
   .lines-panel__header,
   .dialog-footer,
@@ -115,6 +132,10 @@
   }
 
   .line-card__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .line-card__grid--secondary {
     grid-template-columns: 1fr;
   }
 }

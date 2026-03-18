@@ -41,6 +41,7 @@ export class PurchasesPageComponent implements OnInit {
   suppliers: OptionItem[] = [];
   ingredients: IngredientOption[] = [];
   loading = true;
+  loadingReferences = true;
   submitting = false;
   error = '';
   private dialogRef: MatDialogRef<unknown> | null = null;
@@ -78,8 +79,9 @@ export class PurchasesPageComponent implements OnInit {
     this.error = '';
     this.resetForm();
     this.dialogRef = this.dialog.open(this.purchaseDialogTemplate, {
-      width: 'min(960px, calc(100vw - 2rem))',
+      width: 'min(1120px, calc(100vw - 2rem))',
       maxWidth: 'calc(100vw - 2rem)',
+      maxHeight: 'calc(100vh - 2rem)',
       panelClass: 'bf-dialog-panel',
       autoFocus: false,
     });
@@ -222,6 +224,7 @@ export class PurchasesPageComponent implements OnInit {
   }
 
   private loadReferenceData(): void {
+    this.loadingReferences = true;
     forkJoin({
       suppliers: this.apiService.getOptions('suppliers'),
       ingredients: this.apiService.getPaged<{
@@ -241,9 +244,11 @@ export class PurchasesPageComponent implements OnInit {
           unitName: item.unitName,
           averageCost: item.averageCost,
         }));
+        this.loadingReferences = false;
       },
       error: () => {
         this.error = 'No fue posible cargar proveedores e ingredientes.';
+        this.loadingReferences = false;
       },
     });
   }
