@@ -82,7 +82,7 @@
       <div>
         <span class="dialog-badge">Operación</span>
         <h3>Nueva compra</h3>
-        <p>Registra proveedor, fecha e ítems. Se guardará en borrador para confirmar inventario después.</p>
+        <p>Registra proveedor, fecha e ítems. Puedes calcular el costo por unidad base desde una presentación, por ejemplo 100 g por $4.500.</p>
       </div>
 
       <button mat-icon-button type="button" aria-label="Cerrar" (click)="closeDialog()">
@@ -126,6 +126,9 @@
 
         <div formArrayName="details" class="lines-list">
           <div class="line-card" *ngFor="let detail of details.controls; let i = index" [formGroupName]="i">
+            <p class="line-help">
+              Compra en <strong>{{ unitLabel(i) }}</strong>. Si compras una bolsa o paquete, usa los campos de presentación para que el sistema calcule el costo por unidad base.
+            </p>
             <div class="line-card__grid">
               <mat-form-field appearance="fill">
                 <mat-label>Ingrediente</mat-label>
@@ -140,7 +143,7 @@
               </mat-form-field>
 
               <mat-form-field appearance="fill">
-                <mat-label>Cantidad</mat-label>
+                <mat-label>Cantidad al inventario</mat-label>
                 <input matInput type="number" formControlName="quantity" />
               </mat-form-field>
 
@@ -157,6 +160,28 @@
               <button mat-icon-button type="button" color="warn" aria-label="Eliminar ítem" (click)="removeLine(i)">
                 <mat-icon>delete</mat-icon>
               </button>
+            </div>
+
+            <div class="line-card__grid line-card__grid--secondary">
+              <mat-form-field appearance="fill">
+                <mat-label>Cantidad presentación</mat-label>
+                <input matInput type="number" formControlName="packageQuantity" (input)="recalculateUnitCost(i)" />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Costo presentación</mat-label>
+                <input matInput type="number" formControlName="packageCost" (input)="recalculateUnitCost(i)" />
+              </mat-form-field>
+
+              <div class="line-chip">
+                <span>Costo por {{ unitLabel(i) }}</span>
+                <strong>{{ currency(detail.get('unitCost')?.value || 0) }}</strong>
+              </div>
+
+              <div class="line-chip">
+                <span>Subtotal línea</span>
+                <strong>{{ currency(lineSubtotal(i)) }}</strong>
+              </div>
             </div>
           </div>
         </div>

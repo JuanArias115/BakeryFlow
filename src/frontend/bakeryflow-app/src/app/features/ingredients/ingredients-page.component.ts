@@ -6,7 +6,7 @@ import { CrudColumnConfig, CrudFieldConfig } from '../../shared/components/maste
   template: `
     <app-master-crud-page
       title="Ingredientes y materias primas"
-      description="Controla stock, costo promedio y unidad de medida."
+      description="Controla stock, unidad base y costo promedio por unidad. Ejemplo: si compras azúcar por gramos, el costo promedio debe quedar por gramo."
       icon="egg_alt"
       endpoint="ingredients"
       [columns]="columns"
@@ -21,7 +21,7 @@ export class IngredientsPageComponent {
     { key: 'name', label: 'Nombre' },
     { key: 'unitName', label: 'Unidad' },
     { key: 'stockCurrent', label: 'Stock actual' },
-    { key: 'averageCost', label: 'Costo promedio', type: 'currency' },
+    { key: 'averageCost', label: 'Costo prom. unidad', type: 'currency' },
     { key: 'isLowStock', label: 'Stock bajo', type: 'boolean' },
   ];
 
@@ -31,7 +31,7 @@ export class IngredientsPageComponent {
     { key: 'unitOfMeasureId', label: 'Unidad de medida', type: 'select', required: true, endpoint: 'units' },
     { key: 'stockCurrent', label: 'Stock actual', type: 'number', required: true, step: '0.0001' },
     { key: 'stockMinimum', label: 'Stock mínimo', type: 'number', required: true, step: '0.0001' },
-    { key: 'averageCost', label: 'Costo promedio', type: 'number', required: true, step: '0.0001' },
+    { key: 'averageCost', label: 'Costo promedio por unidad', type: 'number', required: true, step: '0.0001' },
     { key: 'description', label: 'Descripción', type: 'textarea' },
     { key: 'isActive', label: 'Activo', type: 'checkbox' },
   ];

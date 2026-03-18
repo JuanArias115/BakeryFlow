@@ -102,6 +102,8 @@ export class PurchasesPageComponent implements OnInit {
         quantity: [1, [Validators.required, Validators.min(0.01)]],
         unitOfMeasureId: ['', Validators.required],
         unitName: [''],
+        packageQuantity: [0, [Validators.min(0)]],
+        packageCost: [0, [Validators.min(0)]],
         unitCost: [0, [Validators.required, Validators.min(0)]],
       }),
     );
@@ -127,7 +129,25 @@ export class PurchasesPageComponent implements OnInit {
         description: ingredient.name,
         unitOfMeasureId: ingredient.unitOfMeasureId,
         unitName: ingredient.unitName,
+        packageQuantity: Number(group.get('quantity')?.value ?? 0),
+        packageCost: 0,
         unitCost: ingredient.averageCost || 0,
+      },
+      { emitEvent: false },
+    );
+  }
+
+  recalculateUnitCost(index: number): void {
+    const group = this.details.at(index);
+    const packageQuantity = Number(group.get('packageQuantity')?.value ?? 0);
+    const packageCost = Number(group.get('packageCost')?.value ?? 0);
+    if (packageQuantity <= 0 || packageCost < 0) {
+      return;
+    }
+
+    group.patchValue(
+      {
+        unitCost: this.roundValue(packageCost / packageQuantity),
       },
       { emitEvent: false },
     );
@@ -142,8 +162,19 @@ export class PurchasesPageComponent implements OnInit {
     this.submitting = true;
     this.error = '';
 
+    const payload = {
+      ...this.form.getRawValue(),
+      details: this.details.controls.map((group) => ({
+        ingredientId: group.get('ingredientId')?.value,
+        description: group.get('description')?.value,
+        quantity: Number(group.get('quantity')?.value ?? 0),
+        unitOfMeasureId: group.get('unitOfMeasureId')?.value,
+        unitCost: Number(group.get('unitCost')?.value ?? 0),
+      })),
+    };
+
     this.apiService
-      .post('purchases', this.form.getRawValue())
+      .post('purchases', payload)
       .pipe(finalize(() => (this.submitting = false)))
       .subscribe({
         next: () => {
@@ -177,6 +208,17 @@ export class PurchasesPageComponent implements OnInit {
 
   currency(value: number): string {
     return formatCopCurrency(value);
+  }
+
+  unitLabel(index: number): string {
+    return this.details.at(index).get('unitName')?.value || 'unidad base';
+  }
+
+  lineSubtotal(index: number): number {
+    const group = this.details.at(index);
+    const quantity = Number(group.get('quantity')?.value ?? 0);
+    const unitCost = Number(group.get('unitCost')?.value ?? 0);
+    return quantity * unitCost;
   }
 
   private loadReferenceData(): void {
@@ -238,5 +280,9 @@ export class PurchasesPageComponent implements OnInit {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     return now.toISOString().slice(0, 16);
+  }
+
+  private roundValue(value: number): number {
+    return Math.round(value * 10000) / 10000;
   }
 }

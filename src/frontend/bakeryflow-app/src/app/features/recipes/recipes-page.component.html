@@ -123,7 +123,7 @@
       <div>
         <span class="dialog-badge">{{ editingId ? 'Edición' : 'Nueva receta' }}</span>
         <h3>{{ editingId ? 'Editar receta' : 'Crear receta' }}</h3>
-        <p>Gestiona la receta en popup para no quitar espacio al listado principal.</p>
+        <p>La receta consume ingredientes en su unidad base y con eso el sistema calcula costo por producto y utilidad estimada.</p>
       </div>
 
       <button mat-icon-button type="button" aria-label="Cerrar" (click)="closeRecipeDialog()">
@@ -176,6 +176,7 @@
 
         <div formArrayName="details" class="lines-list">
           <div class="line-card" *ngFor="let detail of details.controls; let i = index" [formGroupName]="i">
+            <p class="line-help">Ingresa la cantidad real usada del ingrediente en su unidad base. Ejemplo: 250 gramos de azúcar.</p>
             <div class="line-card__grid">
               <mat-form-field appearance="fill">
                 <mat-label>Ingrediente</mat-label>

@@ -213,6 +213,36 @@ table.mat-mdc-table {
   color: var(--bf-primary-strong);
 }
 
+.cdk-overlay-pane .mat-mdc-select-panel,
+.cdk-overlay-pane .mat-mdc-autocomplete-panel,
+.cdk-overlay-pane .mat-mdc-menu-panel {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(112, 79, 67, 0.12);
+  border-radius: 1.2rem !important;
+  box-shadow: 0 24px 50px rgba(47, 37, 33, 0.16) !important;
+  overflow: hidden;
+}
+
+.cdk-overlay-pane .mat-mdc-option {
+  min-height: 52px;
+}
+
+.cdk-overlay-pane .mat-mdc-option .mdc-list-item__primary-text {
+  color: var(--bf-text) !important;
+  font-weight: 600;
+}
+
+.cdk-overlay-pane .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled),
+.cdk-overlay-pane .mat-mdc-option.mat-mdc-option-active,
+.cdk-overlay-pane .mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background: rgba(242, 154, 188, 0.12) !important;
+}
+
+.cdk-overlay-pane .mat-mdc-option .mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after {
+  color: var(--bf-primary-strong);
+}
+
 .mat-mdc-form-field .mat-mdc-input-element::placeholder {
   color: rgba(107, 90, 82, 0.56);
 }
