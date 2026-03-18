@@ -11,10 +11,14 @@ export class LoadingService {
   );
 
   start(): void {
-    this.pendingRequestsSubject.next(this.pendingRequestsSubject.value + 1);
+    queueMicrotask(() => {
+      this.pendingRequestsSubject.next(this.pendingRequestsSubject.value + 1);
+    });
   }
 
   stop(): void {
-    this.pendingRequestsSubject.next(Math.max(0, this.pendingRequestsSubject.value - 1));
+    queueMicrotask(() => {
+      this.pendingRequestsSubject.next(Math.max(0, this.pendingRequestsSubject.value - 1));
+    });
   }
 }

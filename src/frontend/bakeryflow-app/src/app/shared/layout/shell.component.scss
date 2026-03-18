@@ -53,11 +53,29 @@
   gap: 0.15rem;
 }
 
+.brand-copy__head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 .brand p,
 .toolbar-caption,
 .user-pill p {
   margin: 0;
   color: var(--bf-text-muted);
+}
+
+.brand-version {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(242, 154, 188, 0.12);
+  color: var(--bf-primary-strong);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 
 .nav-scroll {

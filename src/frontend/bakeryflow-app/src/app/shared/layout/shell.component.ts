@@ -1,7 +1,8 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 
 interface NavItem {
@@ -22,6 +23,7 @@ interface NavGroup {
   standalone: false,
 })
 export class ShellComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   readonly navGroups: NavGroup[] = [
     {
       label: 'Resumen',
@@ -53,6 +55,7 @@ export class ShellComponent implements OnInit {
     },
   ];
   readonly adminNavItems: NavItem[] = [{ label: 'Usuarios', route: '/users', icon: 'manage_accounts' }];
+  readonly appVersion = environment.appVersion;
   isMobile = false;
   mobileNavOpen = false;
 
@@ -65,7 +68,7 @@ export class ShellComponent implements OnInit {
   ngOnInit(): void {
     this.breakpointObserver
       .observe('(max-width: 820px)')
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((state) => {
         this.isMobile = state.matches;
         this.mobileNavOpen = false;
