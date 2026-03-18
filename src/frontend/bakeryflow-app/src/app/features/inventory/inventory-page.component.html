@@ -8,36 +8,13 @@
   <p class="bf-inline-error" *ngIf="error">{{ error }}</p>
 
   <section class="card">
-    <h3>Ajuste manual</h3>
-    <form [formGroup]="form" (ngSubmit)="submitAdjustment()" class="adjustment-form">
-      <mat-form-field appearance="fill">
-        <mat-label>Ingrediente</mat-label>
-        <mat-select formControlName="ingredientId">
-          <mat-option *ngFor="let ingredient of ingredients" [value]="ingredient.id">{{ ingredient.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Cantidad (+/-)</mat-label>
-        <input matInput type="number" formControlName="quantityDelta" />
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Costo unitario</mat-label>
-        <input matInput type="number" formControlName="unitCost" />
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Fecha</mat-label>
-        <input matInput type="datetime-local" formControlName="date" />
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Observaciones</mat-label>
-        <textarea matInput rows="3" formControlName="notes"></textarea>
-      </mat-form-field>
-      <button mat-flat-button color="primary" type="submit">Registrar ajuste</button>
-    </form>
-  </section>
-
-  <section class="card">
-    <h3>Existencias actuales</h3>
+    <div class="card-toolbar">
+      <h3>Existencias actuales</h3>
+      <button mat-flat-button color="primary" type="button" (click)="openAdjustmentDialog()">
+        <mat-icon>edit_note</mat-icon>
+        Ajuste manual
+      </button>
+    </div>
     <app-loading-state
       *ngIf="loading"
       title="Cargando existencias"
@@ -60,7 +37,7 @@
       </ng-container>
       <ng-container matColumnDef="averageCost">
         <th mat-header-cell *matHeaderCellDef>Costo promedio</th>
-        <td mat-cell *matCellDef="let item">{{ item.averageCost | number: '1.2-4' }}</td>
+        <td mat-cell *matCellDef="let item">{{ currency(item.averageCost) }}</td>
       </ng-container>
       <ng-container matColumnDef="isLowStock">
         <th mat-header-cell *matHeaderCellDef>Alerta</th>
@@ -95,3 +72,55 @@
     </table>
   </section>
 </div>
+
+<ng-template #adjustmentDialogTemplate>
+  <div class="inventory-dialog">
+    <div class="inventory-dialog__header">
+      <div>
+        <span class="dialog-badge">Inventario</span>
+        <h3>Ajuste manual</h3>
+        <p>Registra ajustes sin salir del listado principal.</p>
+      </div>
+
+      <button mat-icon-button type="button" aria-label="Cerrar" (click)="closeAdjustmentDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submitAdjustment()" class="adjustment-form">
+      <mat-form-field appearance="fill">
+        <mat-label>Ingrediente</mat-label>
+        <mat-select formControlName="ingredientId">
+          <mat-option *ngFor="let ingredient of ingredients" [value]="ingredient.id">{{ ingredient.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Cantidad (+/-)</mat-label>
+        <input matInput type="number" formControlName="quantityDelta" />
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Costo unitario</mat-label>
+        <input matInput type="number" formControlName="unitCost" />
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Fecha</mat-label>
+        <input matInput type="datetime-local" formControlName="date" />
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Observaciones</mat-label>
+        <textarea matInput rows="3" formControlName="notes"></textarea>
+      </mat-form-field>
+
+      <div class="dialog-actions bf-form-actions">
+        <button mat-flat-button color="primary" type="submit">
+          <mat-icon>save</mat-icon>
+          Guardar ajuste
+        </button>
+        <button mat-stroked-button type="button" (click)="closeAdjustmentDialog()">
+          <mat-icon>close</mat-icon>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>

@@ -1,32 +1,175 @@
 <app-page-header
   title="Ventas"
-  description="Consulta el historial de ventas y su utilidad básica."
+  description="Registra ventas directas y consulta la utilidad básica de cada comprobante."
   icon="point_of_sale"
 ></app-page-header>
 
 <section class="card">
-  <table mat-table [dataSource]="items">
-    <ng-container matColumnDef="customerName">
-      <th mat-header-cell *matHeaderCellDef>Cliente</th>
-      <td mat-cell *matCellDef="let item">{{ item.customerName || 'General' }}</td>
-    </ng-container>
-    <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef>Fecha</th>
-      <td mat-cell *matCellDef="let item">{{ item.date | date: 'short' }}</td>
-    </ng-container>
-    <ng-container matColumnDef="total">
-      <th mat-header-cell *matHeaderCellDef>Total</th>
-      <td mat-cell *matCellDef="let item">{{ currency(item.total) }}</td>
-    </ng-container>
-    <ng-container matColumnDef="profit">
-      <th mat-header-cell *matHeaderCellDef>Utilidad</th>
-      <td mat-cell *matCellDef="let item">{{ currency(item.profit) }}</td>
-    </ng-container>
-    <ng-container matColumnDef="paymentMethod">
-      <th mat-header-cell *matHeaderCellDef>Pago</th>
-      <td mat-cell *matCellDef="let item">{{ item.paymentMethod }}</td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="['customerName', 'date', 'total', 'profit', 'paymentMethod']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['customerName', 'date', 'total', 'profit', 'paymentMethod']"></tr>
-  </table>
+  <div class="card-toolbar">
+    <div>
+      <h3>Historial de ventas</h3>
+      <p>Registra ventas completas sin salir del listado principal.</p>
+    </div>
+
+    <button mat-flat-button color="primary" type="button" (click)="openCreateDialog()">
+      <mat-icon>add_card</mat-icon>
+      Nueva venta
+    </button>
+  </div>
+
+  <p class="bf-inline-error" *ngIf="error">{{ error }}</p>
+
+  <app-loading-state
+    *ngIf="loading"
+    title="Cargando ventas"
+    description="Estamos preparando el historial comercial."
+    [rows]="5"
+    [compact]="true"
+  ></app-loading-state>
+
+  <app-empty-state
+    *ngIf="!loading && !items.length"
+    icon="point_of_sale"
+    title="Todavía no hay ventas"
+    description="Registra la primera venta desde el botón Nueva venta."
+  ></app-empty-state>
+
+  <div class="bf-table-wrap" *ngIf="!loading && items.length">
+    <table mat-table [dataSource]="items">
+      <ng-container matColumnDef="customerName">
+        <th mat-header-cell *matHeaderCellDef>Cliente</th>
+        <td mat-cell *matCellDef="let item">{{ item.customerName || 'General' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef>Fecha</th>
+        <td mat-cell *matCellDef="let item">{{ item.date | date: 'short' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef>Total</th>
+        <td mat-cell *matCellDef="let item">{{ currency(item.total) }}</td>
+      </ng-container>
+      <ng-container matColumnDef="profit">
+        <th mat-header-cell *matHeaderCellDef>Utilidad</th>
+        <td mat-cell *matCellDef="let item">{{ currency(item.profit) }}</td>
+      </ng-container>
+      <ng-container matColumnDef="paymentMethod">
+        <th mat-header-cell *matHeaderCellDef>Pago</th>
+        <td mat-cell *matCellDef="let item">{{ item.paymentMethod }}</td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="['customerName', 'date', 'total', 'profit', 'paymentMethod']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['customerName', 'date', 'total', 'profit', 'paymentMethod']"></tr>
+    </table>
+  </div>
 </section>
+
+<ng-template #saleDialogTemplate>
+  <div class="dialog-shell">
+    <div class="dialog-shell__header">
+      <div>
+        <span class="dialog-badge">Operación</span>
+        <h3>Nueva venta</h3>
+        <p>Selecciona cliente, método de pago y productos para registrar la venta del día.</p>
+      </div>
+
+      <button mat-icon-button type="button" aria-label="Cerrar" (click)="closeDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submitSale()" class="sale-form">
+      <div class="bf-form-grid">
+        <mat-form-field appearance="fill">
+          <mat-label>Cliente</mat-label>
+          <mat-select formControlName="customerId">
+            <mat-option value="">General</mat-option>
+            <mat-option *ngFor="let customer of customers" [value]="customer.id">{{ customer.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Fecha</mat-label>
+          <input matInput type="datetime-local" formControlName="date" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Método de pago</mat-label>
+          <mat-select formControlName="paymentMethod">
+            <mat-option *ngFor="let option of paymentMethods" [value]="option.value">{{ option.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="bf-form-grid__wide">
+          <mat-label>Observaciones</mat-label>
+          <textarea matInput rows="3" formControlName="notes"></textarea>
+        </mat-form-field>
+      </div>
+
+      <div class="lines-panel">
+        <div class="lines-panel__header">
+          <h4>Productos</h4>
+          <button mat-stroked-button type="button" (click)="addLine()">
+            <mat-icon>add</mat-icon>
+            Agregar producto
+          </button>
+        </div>
+
+        <div formArrayName="details" class="lines-list">
+          <div class="line-card" *ngFor="let detail of details.controls; let i = index" [formGroupName]="i">
+            <div class="line-card__grid">
+              <mat-form-field appearance="fill">
+                <mat-label>Producto</mat-label>
+                <mat-select formControlName="productId" (selectionChange)="onProductChange(i)">
+                  <mat-option *ngFor="let product of products" [value]="product.id">{{ product.name }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Descripción</mat-label>
+                <input matInput formControlName="description" />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Cantidad</mat-label>
+                <input matInput type="number" formControlName="quantity" />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Precio unitario</mat-label>
+                <input matInput type="number" formControlName="unitPrice" />
+              </mat-form-field>
+
+              <div class="line-chip">
+                <span>Subtotal</span>
+                <strong>{{
+                  currency((detail.get('quantity')?.value || 0) * (detail.get('unitPrice')?.value || 0))
+                }}</strong>
+              </div>
+
+              <button mat-icon-button type="button" color="warn" aria-label="Eliminar producto" (click)="removeLine(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dialog-footer">
+        <div class="dialog-total">
+          <span>Total venta</span>
+          <strong>{{ currency(total) }}</strong>
+        </div>
+
+        <div class="bf-form-actions">
+          <button mat-stroked-button type="button" (click)="closeDialog()">
+            <mat-icon>close</mat-icon>
+            Cancelar
+          </button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
+            <mat-icon>save</mat-icon>
+            {{ submitting ? 'Guardando...' : 'Registrar venta' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</ng-template>

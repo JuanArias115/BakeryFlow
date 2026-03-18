@@ -8,64 +8,19 @@
 
 <section class="users-grid">
   <app-section-card
-    class="form-card"
-    [title]="editingId ? 'Editar usuario' : 'Crear usuario'"
-    subtitle="Define nombre, correo, rol, estado y contraseña inicial."
-    icon="person_add"
-    eyebrow="Gestión interna"
-  >
-    <form [formGroup]="form" (ngSubmit)="submit()" class="user-form bf-form-grid">
-      <mat-form-field appearance="fill">
-        <mat-label>Nombre</mat-label>
-        <input matInput formControlName="firstName" />
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Apellido</mat-label>
-        <input matInput formControlName="lastName" />
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Email</mat-label>
-        <input matInput type="email" formControlName="email" />
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Rol</mat-label>
-        <mat-select formControlName="role">
-          <mat-option value="Admin">Admin</mat-option>
-          <mat-option value="Operator">Operator</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Contraseña {{ editingId ? '(solo para crear)' : '' }}</mat-label>
-        <input matInput type="password" formControlName="password" />
-      </mat-form-field>
-
-      <label class="checkbox-card">
-        <mat-checkbox formControlName="isActive">Activo</mat-checkbox>
-      </label>
-
-      <div class="actions bf-form-actions">
-        <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
-          <mat-icon>{{ editingId ? 'save' : 'person_add' }}</mat-icon>
-          {{ submitting ? 'Guardando...' : editingId ? 'Actualizar' : 'Crear' }}
-        </button>
-        <button mat-stroked-button type="button" (click)="resetForm()">
-          <mat-icon>refresh</mat-icon>
-          Limpiar
-        </button>
-      </div>
-    </form>
-  </app-section-card>
-
-  <app-section-card
     title="Listado de usuarios"
     subtitle="Activa, desactiva o edita accesos rápidamente."
     icon="groups"
     eyebrow="Equipo"
   >
+    <div class="table-toolbar">
+      <span class="table-count">{{ users.length }} usuarios</span>
+      <button mat-flat-button color="primary" type="button" (click)="openCreateDialog()">
+        <mat-icon>person_add</mat-icon>
+        Agregar usuario
+      </button>
+    </div>
+
     <p class="bf-inline-error" *ngIf="error">{{ error }}</p>
 
     <app-loading-state
@@ -79,7 +34,7 @@
       *ngIf="isEmpty"
       icon="group_off"
       title="No hay usuarios adicionales"
-      description="Crea el primer usuario desde el formulario para delegar tareas en la operación."
+      description="Crea el primer usuario desde el botón Agregar usuario para delegar tareas en la operación."
     ></app-empty-state>
 
     <div class="bf-table-wrap" *ngIf="!loading && !isEmpty && !error">
@@ -129,28 +84,96 @@
   </app-section-card>
 </section>
 
-<app-section-card
-  *ngIf="passwordUserId"
-  class="password-card"
-  title="Cambiar contraseña"
-  subtitle="Actualiza la clave del usuario seleccionado."
-  icon="lock_reset"
-  eyebrow="Seguridad"
->
-  <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="password-form">
-    <mat-form-field appearance="fill">
-      <mat-label>Nueva contraseña</mat-label>
-      <input matInput type="password" formControlName="password" />
-    </mat-form-field>
-    <div class="actions bf-form-actions">
-      <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
-        <mat-icon>save</mat-icon>
-        Guardar
-      </button>
-      <button mat-stroked-button type="button" (click)="passwordUserId = null">
+<ng-template #userDialogTemplate>
+  <div class="users-dialog">
+    <div class="users-dialog__header">
+      <div>
+        <span class="header-pill">{{ editingId ? 'Edición' : 'Nuevo usuario' }}</span>
+        <h3>{{ editingId ? 'Editar usuario' : 'Crear usuario' }}</h3>
+        <p>Define nombre, correo, rol, estado y contraseña inicial sin salir del listado.</p>
+      </div>
+
+      <button mat-icon-button type="button" aria-label="Cerrar" (click)="closeUserDialog()">
         <mat-icon>close</mat-icon>
-        Cancelar
       </button>
     </div>
-  </form>
-</app-section-card>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="user-form bf-form-grid">
+      <mat-form-field appearance="fill">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="firstName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Apellido</mat-label>
+        <input matInput formControlName="lastName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" />
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Rol</mat-label>
+        <mat-select formControlName="role">
+          <mat-option value="Admin">Admin</mat-option>
+          <mat-option value="Operator">Operator</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Contraseña {{ editingId ? '(solo para crear)' : '' }}</mat-label>
+        <input matInput type="password" formControlName="password" />
+      </mat-form-field>
+
+      <label class="checkbox-card">
+        <mat-checkbox formControlName="isActive">Activo</mat-checkbox>
+      </label>
+
+      <div class="actions bf-form-actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
+          <mat-icon>{{ editingId ? 'save' : 'person_add' }}</mat-icon>
+          {{ submitting ? 'Guardando...' : editingId ? 'Actualizar' : 'Crear' }}
+        </button>
+        <button mat-stroked-button type="button" (click)="closeUserDialog()">
+          <mat-icon>close</mat-icon>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #passwordDialogTemplate>
+  <div class="users-dialog users-dialog--compact">
+    <div class="users-dialog__header">
+      <div>
+        <span class="header-pill">Seguridad</span>
+        <h3>Cambiar contraseña</h3>
+        <p>Actualiza la clave del usuario seleccionado.</p>
+      </div>
+
+      <button mat-icon-button type="button" aria-label="Cerrar" (click)="closePasswordDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="password-form">
+      <mat-form-field appearance="fill">
+        <mat-label>Nueva contraseña</mat-label>
+        <input matInput type="password" formControlName="password" />
+      </mat-form-field>
+      <div class="actions bf-form-actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
+          <mat-icon>save</mat-icon>
+          Guardar
+        </button>
+        <button mat-stroked-button type="button" (click)="closePasswordDialog()">
+          <mat-icon>close</mat-icon>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>

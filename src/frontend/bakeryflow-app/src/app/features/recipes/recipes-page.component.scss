@@ -1,24 +1,53 @@
 .page-grid,
-.costing-grid {
+.costing-grid,
+.recipe-form,
+.lines-panel,
+.lines-list {
   display: grid;
   gap: 1rem;
 }
 
-.page-grid {
-  grid-template-columns: 1fr;
-}
-
 .card {
-  padding: 1.25rem;
-  border-radius: 1.4rem;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
   background: var(--bf-surface);
   border: 1px solid rgba(112, 79, 67, 0.12);
-  box-shadow: 0 18px 36px rgba(112, 79, 67, 0.08);
+  box-shadow: 0 22px 44px rgba(112, 79, 67, 0.08);
+}
+
+.card-toolbar,
+.card-toolbar__actions,
+.costing-controls,
+.recipes-dialog__header,
+.lines-panel__header {
+  display: flex;
+  gap: 1rem;
+}
+
+.card-toolbar,
+.recipes-dialog__header,
+.lines-panel__header {
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.card-toolbar {
+  margin-bottom: 1rem;
+}
+
+.card-toolbar h3,
+.recipes-dialog__header h3,
+.lines-panel__header h4 {
+  margin: 0;
+}
+
+.card-toolbar p,
+.recipes-dialog__header p {
+  margin: 0.35rem 0 0;
+  color: var(--bf-text-secondary);
 }
 
 .costing-controls {
-  display: flex;
-  gap: 1rem;
   align-items: center;
   margin-bottom: 1rem;
 }
@@ -29,4 +58,67 @@
 
 table {
   width: 100%;
+}
+
+.recipes-dialog {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.dialog-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(242, 154, 188, 0.12);
+  color: var(--bf-primary-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.line-card {
+  border: 1px solid rgba(112, 79, 67, 0.12);
+  border-radius: 1.1rem;
+  padding: 1rem;
+  background: rgba(255, 250, 251, 0.88);
+}
+
+.line-card__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(120px, 0.8fr) auto auto;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.line-chip {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  background: rgba(242, 154, 188, 0.12);
+  color: var(--bf-text-secondary);
+}
+
+.line-chip strong {
+  color: var(--bf-text-primary);
+}
+
+.table-actions {
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .card-toolbar,
+  .card-toolbar__actions,
+  .costing-controls,
+  .recipes-dialog__header,
+  .lines-panel__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .line-card__grid {
+    grid-template-columns: 1fr;
+  }
 }

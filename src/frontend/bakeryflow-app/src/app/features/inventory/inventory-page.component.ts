@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ApiService } from '../../core/services/api.service';
 import { OptionItem, PagedResult } from '../../core/models/api.models';
+import { formatCopCurrency } from '../../shared/utils/currency';
 
 interface InventoryStock {
   ingredientId: string;
@@ -30,16 +32,19 @@ interface InventoryMovement {
   standalone: false,
 })
 export class InventoryPageComponent implements OnInit {
+  @ViewChild('adjustmentDialogTemplate') adjustmentDialogTemplate?: TemplateRef<unknown>;
   stocks: InventoryStock[] = [];
   movements: InventoryMovement[] = [];
   ingredients: OptionItem[] = [];
   loading = true;
   error = '';
   readonly form;
+  private dialogRef: MatDialogRef<unknown> | null = null;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly apiService: ApiService,
+    private readonly dialog: MatDialog,
   ) {
     this.form = this.fb.group({
       ingredientId: ['', Validators.required],
@@ -87,9 +92,38 @@ export class InventoryPageComponent implements OnInit {
 
     const value = this.form.getRawValue();
     this.apiService.post('inventory/adjustments', value).subscribe(() => {
-      this.form.reset({ ingredientId: '', quantityDelta: 0, unitCost: 0, notes: '', date: '' });
+      this.closeAdjustmentDialog();
       this.loadStocks();
       this.loadMovements();
     });
+  }
+
+  openAdjustmentDialog(): void {
+    this.form.reset({ ingredientId: '', quantityDelta: 0, unitCost: 0, notes: '', date: '' });
+    if (!this.adjustmentDialogTemplate) {
+      return;
+    }
+
+    this.dialogRef = this.dialog.open(this.adjustmentDialogTemplate, {
+      width: 'min(760px, calc(100vw - 2rem))',
+      maxWidth: 'calc(100vw - 2rem)',
+      panelClass: 'bf-dialog-panel',
+      autoFocus: false,
+    });
+
+    this.dialogRef.afterClosed().subscribe(() => {
+      this.dialogRef = null;
+      this.form.reset({ ingredientId: '', quantityDelta: 0, unitCost: 0, notes: '', date: '' });
+    });
+  }
+
+  closeAdjustmentDialog(): void {
+    this.dialogRef?.close();
+    this.dialogRef = null;
+    this.form.reset({ ingredientId: '', quantityDelta: 0, unitCost: 0, notes: '', date: '' });
+  }
+
+  currency(value: number): string {
+    return formatCopCurrency(value);
   }
 }

@@ -1,32 +1,184 @@
 <app-page-header
   title="Compras"
-  description="Historial de compras registrado y estado de confirmación."
+  description="Registra compras en borrador, confirma entradas y consulta el historial del periodo."
   icon="shopping_bag"
 ></app-page-header>
 
 <section class="card">
-  <table mat-table [dataSource]="items">
-    <ng-container matColumnDef="supplierName">
-      <th mat-header-cell *matHeaderCellDef>Proveedor</th>
-      <td mat-cell *matCellDef="let item">{{ item.supplierName }}</td>
-    </ng-container>
-    <ng-container matColumnDef="invoiceNumber">
-      <th mat-header-cell *matHeaderCellDef>Factura</th>
-      <td mat-cell *matCellDef="let item">{{ item.invoiceNumber || '—' }}</td>
-    </ng-container>
-    <ng-container matColumnDef="purchaseDate">
-      <th mat-header-cell *matHeaderCellDef>Fecha</th>
-      <td mat-cell *matCellDef="let item">{{ item.purchaseDate | date: 'shortDate' }}</td>
-    </ng-container>
-    <ng-container matColumnDef="total">
-      <th mat-header-cell *matHeaderCellDef>Total</th>
-      <td mat-cell *matCellDef="let item">{{ currency(item.total) }}</td>
-    </ng-container>
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Estado</th>
-      <td mat-cell *matCellDef="let item">{{ item.status }}</td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="['supplierName', 'invoiceNumber', 'purchaseDate', 'total', 'status']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['supplierName', 'invoiceNumber', 'purchaseDate', 'total', 'status']"></tr>
-  </table>
+  <div class="card-toolbar">
+    <div>
+      <h3>Historial de compras</h3>
+      <p>Las compras nuevas se crean en borrador y luego puedes confirmarlas para impactar inventario.</p>
+    </div>
+
+    <button mat-flat-button color="primary" type="button" (click)="openCreateDialog()">
+      <mat-icon>add_shopping_cart</mat-icon>
+      Nueva compra
+    </button>
+  </div>
+
+  <p class="bf-inline-error" *ngIf="error">{{ error }}</p>
+
+  <app-loading-state
+    *ngIf="loading"
+    title="Cargando compras"
+    description="Estamos consultando el historial reciente."
+    [rows]="5"
+    [compact]="true"
+  ></app-loading-state>
+
+  <app-empty-state
+    *ngIf="!loading && !items.length"
+    icon="shopping_bag"
+    title="Todavía no hay compras"
+    description="Registra la primera compra desde el botón Nueva compra."
+  ></app-empty-state>
+
+  <div class="bf-table-wrap" *ngIf="!loading && items.length">
+    <table mat-table [dataSource]="items">
+      <ng-container matColumnDef="supplierName">
+        <th mat-header-cell *matHeaderCellDef>Proveedor</th>
+        <td mat-cell *matCellDef="let item">{{ item.supplierName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="invoiceNumber">
+        <th mat-header-cell *matHeaderCellDef>Factura</th>
+        <td mat-cell *matCellDef="let item">{{ item.invoiceNumber || '—' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="purchaseDate">
+        <th mat-header-cell *matHeaderCellDef>Fecha</th>
+        <td mat-cell *matCellDef="let item">{{ item.purchaseDate | date: 'shortDate' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef>Total</th>
+        <td mat-cell *matCellDef="let item">{{ currency(item.total) }}</td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let item">
+          <span class="bf-status-chip" [class.is-active]="!canConfirm(item.status)" [class.is-inactive]="canConfirm(item.status)">
+            <mat-icon>{{ canConfirm(item.status) ? 'schedule' : 'check_circle' }}</mat-icon>
+            {{ item.status === 'Draft' ? 'Borrador' : item.status === 'Confirmed' ? 'Confirmada' : item.status }}
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let item" class="table-actions">
+          <button mat-stroked-button type="button" (click)="confirmPurchase(item.id)" [disabled]="!canConfirm(item.status) || submitting">
+            <mat-icon>inventory</mat-icon>
+            Confirmar
+          </button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="['supplierName', 'invoiceNumber', 'purchaseDate', 'total', 'status', 'actions']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['supplierName', 'invoiceNumber', 'purchaseDate', 'total', 'status', 'actions']"></tr>
+    </table>
+  </div>
 </section>
+
+<ng-template #purchaseDialogTemplate>
+  <div class="dialog-shell">
+    <div class="dialog-shell__header">
+      <div>
+        <span class="dialog-badge">Operación</span>
+        <h3>Nueva compra</h3>
+        <p>Registra proveedor, fecha e ítems. Se guardará en borrador para confirmar inventario después.</p>
+      </div>
+
+      <button mat-icon-button type="button" aria-label="Cerrar" (click)="closeDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submitPurchase()" class="purchase-form">
+      <div class="bf-form-grid">
+        <mat-form-field appearance="fill">
+          <mat-label>Proveedor</mat-label>
+          <mat-select formControlName="supplierId">
+            <mat-option *ngFor="let supplier of suppliers" [value]="supplier.id">{{ supplier.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Factura</mat-label>
+          <input matInput formControlName="invoiceNumber" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Fecha de compra</mat-label>
+          <input matInput type="datetime-local" formControlName="purchaseDate" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="bf-form-grid__wide">
+          <mat-label>Observaciones</mat-label>
+          <textarea matInput rows="3" formControlName="notes"></textarea>
+        </mat-form-field>
+      </div>
+
+      <div class="lines-panel">
+        <div class="lines-panel__header">
+          <h4>Ítems</h4>
+          <button mat-stroked-button type="button" (click)="addLine()">
+            <mat-icon>add</mat-icon>
+            Agregar ítem
+          </button>
+        </div>
+
+        <div formArrayName="details" class="lines-list">
+          <div class="line-card" *ngFor="let detail of details.controls; let i = index" [formGroupName]="i">
+            <div class="line-card__grid">
+              <mat-form-field appearance="fill">
+                <mat-label>Ingrediente</mat-label>
+                <mat-select formControlName="ingredientId" (selectionChange)="onIngredientChange(i)">
+                  <mat-option *ngFor="let ingredient of ingredients" [value]="ingredient.id">{{ ingredient.name }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Descripción</mat-label>
+                <input matInput formControlName="description" />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Cantidad</mat-label>
+                <input matInput type="number" formControlName="quantity" />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Costo unitario</mat-label>
+                <input matInput type="number" formControlName="unitCost" />
+              </mat-form-field>
+
+              <div class="line-chip">
+                <span>Unidad</span>
+                <strong>{{ detail.get('unitName')?.value || '—' }}</strong>
+              </div>
+
+              <button mat-icon-button type="button" color="warn" aria-label="Eliminar ítem" (click)="removeLine(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dialog-footer">
+        <div class="dialog-total">
+          <span>Total estimado</span>
+          <strong>{{ currency(total) }}</strong>
+        </div>
+
+        <div class="bf-form-actions">
+          <button mat-stroked-button type="button" (click)="closeDialog()">
+            <mat-icon>close</mat-icon>
+            Cancelar
+          </button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
+            <mat-icon>save</mat-icon>
+            {{ submitting ? 'Guardando...' : 'Guardar compra' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</ng-template>

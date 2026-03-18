@@ -29,7 +29,6 @@ export class ShellComponent implements OnInit {
       label: 'Resumen',
       items: [
         { label: 'Dashboard', route: '/dashboard', icon: 'space_dashboard' },
-        { label: 'Reportes', route: '/reports', icon: 'analytics' },
       ],
     },
     {
@@ -37,7 +36,6 @@ export class ShellComponent implements OnInit {
       items: [
         { label: 'Ventas', route: '/sales', icon: 'point_of_sale' },
         { label: 'Compras', route: '/purchases', icon: 'shopping_bag' },
-        { label: 'Producción', route: '/productions', icon: 'bakery_dining' },
         { label: 'Inventario', route: '/inventory', icon: 'inventory_2' },
         { label: 'Recetas', route: '/recipes', icon: 'menu_book' },
       ],
@@ -55,6 +53,7 @@ export class ShellComponent implements OnInit {
     },
   ];
   readonly adminNavItems: NavItem[] = [{ label: 'Usuarios', route: '/users', icon: 'manage_accounts' }];
+  readonly reportNavItem: NavItem = { label: 'Reportes', route: '/reports', icon: 'analytics' };
   readonly appVersion = environment.appVersion;
   isMobile = false;
   mobileNavOpen = false;

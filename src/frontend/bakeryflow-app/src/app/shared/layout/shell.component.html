@@ -46,6 +46,21 @@
             <span class="nav-link__label">{{ item.label }}</span>
           </a>
         </section>
+
+        <section class="nav-group nav-group--last">
+          <p class="nav-group__title">Análisis</p>
+          <a
+            [routerLink]="reportNavItem.route"
+            routerLinkActive="active-link"
+            class="nav-link"
+            (click)="handleNavigation()"
+          >
+            <span class="nav-link__icon">
+              <mat-icon>{{ reportNavItem.icon }}</mat-icon>
+            </span>
+            <span class="nav-link__label">{{ reportNavItem.label }}</span>
+          </a>
+        </section>
       </div>
 
       <footer class="sidenav-footer">

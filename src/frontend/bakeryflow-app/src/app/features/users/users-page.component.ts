@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ApiService } from '../../core/services/api.service';
 import { PagedResult } from '../../core/models/api.models';
 
@@ -19,12 +20,16 @@ interface UserItem {
   standalone: false,
 })
 export class UsersPageComponent implements OnInit {
+  @ViewChild('userDialogTemplate') userDialogTemplate?: TemplateRef<unknown>;
+  @ViewChild('passwordDialogTemplate') passwordDialogTemplate?: TemplateRef<unknown>;
   users: UserItem[] = [];
   loading = true;
   submitting = false;
   error = '';
   editingId: string | null = null;
   passwordUserId: string | null = null;
+  private userDialogRef: MatDialogRef<unknown> | null = null;
+  private passwordDialogRef: MatDialogRef<unknown> | null = null;
 
   readonly form;
   readonly passwordForm;
@@ -32,6 +37,7 @@ export class UsersPageComponent implements OnInit {
   constructor(
     private readonly fb: FormBuilder,
     private readonly apiService: ApiService,
+    private readonly dialog: MatDialog,
   ) {
     this.form = this.fb.group({
       firstName: ['', Validators.required],
@@ -102,6 +108,7 @@ export class UsersPageComponent implements OnInit {
 
     request$.subscribe({
       next: () => {
+        this.closeUserDialog();
         this.resetForm();
         this.loadUsers();
       },
@@ -124,6 +131,7 @@ export class UsersPageComponent implements OnInit {
     });
     this.form.get('password')?.clearValidators();
     this.form.get('password')?.updateValueAndValidity();
+    this.openUserDialog();
   }
 
   resetForm(): void {
@@ -141,6 +149,11 @@ export class UsersPageComponent implements OnInit {
     this.submitting = false;
   }
 
+  openCreateDialog(): void {
+    this.resetForm();
+    this.openUserDialog();
+  }
+
   toggleStatus(user: UserItem): void {
     this.submitting = true;
     this.apiService.patch(`users/${user.id}/toggle-status`).subscribe({
@@ -155,6 +168,22 @@ export class UsersPageComponent implements OnInit {
   openPasswordDialog(userId: string): void {
     this.passwordUserId = userId;
     this.passwordForm.reset({ password: '' });
+    if (!this.passwordDialogTemplate) {
+      return;
+    }
+
+    this.passwordDialogRef = this.dialog.open(this.passwordDialogTemplate, {
+      width: 'min(520px, calc(100vw - 2rem))',
+      maxWidth: 'calc(100vw - 2rem)',
+      panelClass: 'bf-dialog-panel',
+      autoFocus: false,
+    });
+
+    this.passwordDialogRef.afterClosed().subscribe(() => {
+      this.passwordDialogRef = null;
+      this.passwordUserId = null;
+      this.passwordForm.reset({ password: '' });
+    });
   }
 
   changePassword(): void {
@@ -168,8 +197,7 @@ export class UsersPageComponent implements OnInit {
       .post(`users/${this.passwordUserId}/change-password`, this.passwordForm.getRawValue())
       .subscribe({
         next: () => {
-          this.passwordUserId = null;
-          this.passwordForm.reset({ password: '' });
+          this.closePasswordDialog();
           this.submitting = false;
         },
         error: (error: { error?: { message?: string } }) => {
@@ -181,5 +209,35 @@ export class UsersPageComponent implements OnInit {
 
   get isEmpty(): boolean {
     return !this.loading && !this.error && this.users.length === 0;
+  }
+
+  closePasswordDialog(): void {
+    this.passwordDialogRef?.close();
+    this.passwordDialogRef = null;
+    this.passwordUserId = null;
+    this.passwordForm.reset({ password: '' });
+  }
+
+  closeUserDialog(): void {
+    this.userDialogRef?.close();
+    this.userDialogRef = null;
+  }
+
+  private openUserDialog(): void {
+    if (!this.userDialogTemplate) {
+      return;
+    }
+
+    this.userDialogRef = this.dialog.open(this.userDialogTemplate, {
+      width: 'min(760px, calc(100vw - 2rem))',
+      maxWidth: 'calc(100vw - 2rem)',
+      panelClass: 'bf-dialog-panel',
+      autoFocus: false,
+    });
+
+    this.userDialogRef.afterClosed().subscribe(() => {
+      this.userDialogRef = null;
+      this.resetForm();
+    });
   }
 }
