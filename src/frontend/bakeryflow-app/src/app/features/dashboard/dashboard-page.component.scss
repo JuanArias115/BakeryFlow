@@ -16,7 +16,8 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(2, minmax(260px, 420px));
+  justify-content: start;
   gap: 1rem;
 }
 
@@ -119,6 +120,10 @@
 }
 
 @media (max-width: 720px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
   .chart-row {
     grid-template-columns: 1fr;
   }

@@ -20,12 +20,6 @@
   <div class="dashboard-grid">
     <section class="stats-grid">
       <app-stat-card
-        label="Ventas del día"
-        [value]="currency(dashboard.salesToday)"
-        hint="Ingresos registrados hoy"
-        icon="payments"
-      ></app-stat-card>
-      <app-stat-card
         label="Ventas del mes"
         [value]="currency(dashboard.salesMonth)"
         hint="Acumulado comercial"
@@ -36,18 +30,6 @@
         [value]="currency(dashboard.purchasesMonth)"
         hint="Abastecimiento del período"
         icon="shopping_cart"
-      ></app-stat-card>
-      <app-stat-card
-        label="Productos"
-        [value]="dashboard.productsCount.toString()"
-        hint="Catálogo activo"
-        icon="cake"
-      ></app-stat-card>
-      <app-stat-card
-        label="Ingredientes"
-        [value]="dashboard.ingredientsCount.toString()"
-        hint="Materias primas controladas"
-        icon="grocery"
       ></app-stat-card>
     </section>
 
