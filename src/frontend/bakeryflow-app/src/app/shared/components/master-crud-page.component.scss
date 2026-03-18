@@ -1,28 +1,24 @@
 .master-page {
-  display: grid;
-  grid-template-columns: minmax(320px, 380px) 1fr;
-  gap: 1.25rem;
+  display: block;
 }
 
 .panel {
   min-width: 0;
 }
 
-.panel-form {
-  position: sticky;
-  top: 1.2rem;
-  height: fit-content;
-}
-
 .form-intro {
   display: grid;
   gap: 0.55rem;
-  margin-bottom: 1rem;
 }
 
 .form-intro p {
   margin: 0;
   color: var(--bf-text-muted);
+}
+
+.form-intro h3 {
+  margin: 0;
+  font-size: 1.3rem;
 }
 
 .form-intro__badge,
@@ -52,12 +48,22 @@
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.table-toolbar__search {
+  flex: 1 1 320px;
+}
+
+.table-toolbar__search mat-form-field {
+  width: min(100%, 360px);
 }
 
 .table-toolbar__meta {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .actions-cell {
@@ -85,12 +91,28 @@
   color: var(--bf-brown);
 }
 
-@media (max-width: 1100px) {
-  .master-page {
-    grid-template-columns: 1fr;
+.master-dialog {
+  padding: 1.5rem;
+}
+
+.master-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+:host ::ng-deep .bf-dialog-panel .mat-mdc-dialog-surface {
+  border-radius: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .master-dialog {
+    padding: 1rem;
   }
 
-  .panel-form {
-    position: static;
+  .master-dialog__header {
+    margin-bottom: 1rem;
   }
 }

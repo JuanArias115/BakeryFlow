@@ -30,7 +30,7 @@ export class ProductsPageComponent {
     { key: 'name', label: 'Nombre', type: 'text', required: true },
     { key: 'categoryId', label: 'Categoría', type: 'select', required: true, endpoint: 'categories' },
     { key: 'unitSale', label: 'Unidad de venta', type: 'text', required: true },
-    { key: 'salePrice', label: 'Precio de venta', type: 'number', required: true, step: '0.01' },
+    { key: 'salePrice', label: 'Precio de venta', type: 'number', required: true, step: '1' },
     { key: 'description', label: 'Descripción', type: 'textarea' },
     { key: 'isActive', label: 'Activo', type: 'checkbox' },
   ];

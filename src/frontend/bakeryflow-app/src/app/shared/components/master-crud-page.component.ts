@@ -1,8 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { OptionItem, PagedResult } from '../../core/models/api.models';
 import { CrudResourceService } from '../../core/services/crud-resource.service';
+import { formatCopCurrency } from '../utils/currency';
 
 export interface CrudColumnConfig {
   key: string;
@@ -45,10 +47,13 @@ export class MasterCrudPageComponent implements OnInit {
   editingId: string | null = null;
   options: Record<string, OptionItem[]> = {};
   displayedColumns: string[] = [];
+  @ViewChild('formDialogTemplate') formDialogTemplate?: TemplateRef<unknown>;
+  private dialogRef: MatDialogRef<unknown> | null = null;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly crudResourceService: CrudResourceService,
+    private readonly dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -108,6 +113,7 @@ export class MasterCrudPageComponent implements OnInit {
 
     request$.subscribe({
       next: () => {
+        this.closeDialog();
         this.resetForm();
         this.loadItems();
       },
@@ -121,6 +127,7 @@ export class MasterCrudPageComponent implements OnInit {
   edit(item: Record<string, unknown>): void {
     this.editingId = String(item['id']);
     this.form.patchValue(item);
+    this.openDialog();
   }
 
   toggleStatus(item: Record<string, unknown>): void {
@@ -144,6 +151,16 @@ export class MasterCrudPageComponent implements OnInit {
     this.submitting = false;
   }
 
+  openCreateDialog(): void {
+    this.resetForm();
+    this.openDialog();
+  }
+
+  closeFormDialog(): void {
+    this.closeDialog();
+    this.resetForm();
+  }
+
   onSearchChange(value: string): void {
     this.search = value;
     this.page = 1;
@@ -163,7 +180,7 @@ export class MasterCrudPageComponent implements OnInit {
     }
 
     if (column.type === 'currency') {
-      return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(Number(value));
+      return formatCopCurrency(Number(value));
     }
 
     if (column.type === 'date') {
@@ -212,5 +229,27 @@ export class MasterCrudPageComponent implements OnInit {
           },
         });
       });
+  }
+
+  private openDialog(): void {
+    if (!this.formDialogTemplate) {
+      return;
+    }
+
+    this.dialogRef = this.dialog.open(this.formDialogTemplate, {
+      width: 'min(720px, calc(100vw - 2rem))',
+      maxWidth: 'calc(100vw - 2rem)',
+      panelClass: 'bf-dialog-panel',
+      autoFocus: false,
+    });
+    this.dialogRef.afterClosed().subscribe(() => {
+      this.dialogRef = null;
+      this.resetForm();
+    });
+  }
+
+  private closeDialog(): void {
+    this.dialogRef?.close();
+    this.dialogRef = null;
   }
 }

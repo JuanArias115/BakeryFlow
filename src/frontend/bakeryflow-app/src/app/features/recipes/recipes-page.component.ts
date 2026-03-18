@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../core/services/api.service';
 import { OptionItem, PagedResult } from '../../core/models/api.models';
+import { formatCopCurrency } from '../../shared/utils/currency';
 
 interface RecipeItem {
   id: string;
@@ -62,6 +63,6 @@ export class RecipesPageComponent implements OnInit {
   }
 
   currency(value: number): string {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(value);
+    return formatCopCurrency(value);
   }
 }

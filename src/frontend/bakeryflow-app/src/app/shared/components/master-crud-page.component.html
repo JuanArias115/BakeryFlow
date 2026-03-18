@@ -1,70 +1,20 @@
 <section class="master-page">
-  <div class="panel panel-form">
+  <div class="panel panel-table bf-table-shell">
     <app-page-header [title]="title" [description]="description" [icon]="icon"></app-page-header>
 
-    <div class="form-intro">
-      <span class="form-intro__badge">{{ editingId ? 'Modo edición' : 'Nuevo registro' }}</span>
-      <p>Completa los datos principales y guarda para reflejar los cambios en el catálogo.</p>
-    </div>
-
-    <form [formGroup]="form" class="entity-form bf-form-grid" (ngSubmit)="submit()">
-      <ng-container *ngFor="let field of fields; trackBy: trackByKey">
-        <mat-form-field appearance="fill" *ngIf="field.type !== 'checkbox'">
-          <mat-label>{{ field.label }}</mat-label>
-
-          <input
-            *ngIf="field.type === 'text' || field.type === 'email'"
-            matInput
-            [type]="field.type"
-            [formControlName]="field.key"
-          />
-
-          <input
-            *ngIf="field.type === 'number'"
-            matInput
-            type="number"
-            [formControlName]="field.key"
-            [step]="field.step || '0.01'"
-          />
-
-          <textarea *ngIf="field.type === 'textarea'" matInput rows="3" [formControlName]="field.key"></textarea>
-
-          <mat-select *ngIf="field.type === 'select'" [formControlName]="field.key">
-            <mat-option *ngFor="let option of options[field.key] || []" [value]="option.id">
-              {{ option.label }}
-            </mat-option>
-          </mat-select>
-
-          <mat-error *ngIf="fieldError(field.key)">{{ fieldError(field.key) }}</mat-error>
-        </mat-form-field>
-
-        <label *ngIf="field.type === 'checkbox'" class="checkbox-card">
-          <mat-checkbox [formControlName]="field.key">{{ field.label }}</mat-checkbox>
-        </label>
-      </ng-container>
-
-      <div class="form-actions bf-form-actions">
-        <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
-          <mat-icon>{{ editingId ? 'save' : 'add_circle' }}</mat-icon>
-          {{ submitting ? 'Guardando...' : editingId ? 'Actualizar' : 'Crear' }}
-        </button>
-        <button mat-stroked-button type="button" (click)="resetForm()">
-          <mat-icon>refresh</mat-icon>
-          Limpiar
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <div class="panel panel-table bf-table-shell">
     <div class="table-toolbar">
-      <mat-form-field appearance="fill">
-        <mat-label>Buscar</mat-label>
-        <input matInput [value]="search" (keyup)="onSearchChange(($any($event.target)).value)" />
-      </mat-form-field>
-
+      <div class="table-toolbar__search">
+        <mat-form-field appearance="fill">
+          <mat-label>Buscar</mat-label>
+          <input matInput [value]="search" (keyup)="onSearchChange(($any($event.target)).value)" />
+        </mat-form-field>
+      </div>
       <div class="table-toolbar__meta">
         <span class="table-count">{{ totalCount }} registros</span>
+        <button mat-flat-button color="primary" type="button" (click)="openCreateDialog()">
+          <mat-icon>add_circle</mat-icon>
+          Agregar
+        </button>
       </div>
     </div>
 
@@ -121,7 +71,7 @@
         *ngIf="isEmpty"
         icon="inventory"
         title="Todavía no hay registros"
-        description="Crea el primer elemento desde el formulario lateral para empezar a trabajar."
+        description="Crea el primer elemento desde el botón Agregar para empezar a trabajar."
       ></app-empty-state>
     </ng-template>
 
@@ -133,3 +83,67 @@
     ></mat-paginator>
   </div>
 </section>
+
+<ng-template #formDialogTemplate>
+  <div class="master-dialog">
+    <div class="master-dialog__header">
+      <div class="form-intro">
+        <span class="form-intro__badge">{{ editingId ? 'Modo edición' : 'Nuevo registro' }}</span>
+        <h3>{{ editingId ? 'Editar registro' : 'Agregar registro' }}</h3>
+        <p>Completa los datos principales y guarda sin salir de la lista.</p>
+      </div>
+
+      <button mat-icon-button type="button" aria-label="Cerrar" (click)="closeFormDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="form" class="entity-form bf-form-grid" (ngSubmit)="submit()">
+      <ng-container *ngFor="let field of fields; trackBy: trackByKey">
+        <mat-form-field appearance="fill" *ngIf="field.type !== 'checkbox'">
+          <mat-label>{{ field.label }}</mat-label>
+
+          <input
+            *ngIf="field.type === 'text' || field.type === 'email'"
+            matInput
+            [type]="field.type"
+            [formControlName]="field.key"
+          />
+
+          <input
+            *ngIf="field.type === 'number'"
+            matInput
+            type="number"
+            [formControlName]="field.key"
+            [step]="field.step || '0.01'"
+          />
+
+          <textarea *ngIf="field.type === 'textarea'" matInput rows="3" [formControlName]="field.key"></textarea>
+
+          <mat-select *ngIf="field.type === 'select'" [formControlName]="field.key">
+            <mat-option *ngFor="let option of options[field.key] || []" [value]="option.id">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+
+          <mat-error *ngIf="fieldError(field.key)">{{ fieldError(field.key) }}</mat-error>
+        </mat-form-field>
+
+        <label *ngIf="field.type === 'checkbox'" class="checkbox-card">
+          <mat-checkbox [formControlName]="field.key">{{ field.label }}</mat-checkbox>
+        </label>
+      </ng-container>
+
+      <div class="form-actions bf-form-actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
+          <mat-icon>{{ editingId ? 'save' : 'add_circle' }}</mat-icon>
+          {{ submitting ? 'Guardando...' : editingId ? 'Actualizar' : 'Crear' }}
+        </button>
+        <button mat-stroked-button type="button" (click)="resetForm()">
+          <mat-icon>refresh</mat-icon>
+          Limpiar
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>

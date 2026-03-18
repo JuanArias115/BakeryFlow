@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../core/services/api.service';
+import { formatCopCurrency } from '../../shared/utils/currency';
 
 interface DashboardTopItem {
   id: string;
@@ -63,7 +64,7 @@ export class DashboardPageComponent implements OnInit {
   }
 
   currency(value: number): string {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(value);
+    return formatCopCurrency(value);
   }
 
   chartWidth(value: number, maxValue: number): number {
