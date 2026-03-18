@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/dashboard'], { replaceUrl: true });
+      this.router.navigateByUrl('/dashboard', { replaceUrl: true });
     }
   }
 
@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
       }),
     ).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']);
+        this.router.navigateByUrl('/dashboard', { replaceUrl: true });
       },
       error: (error: { error?: { message?: string } }) => {
         this.error = error.error?.message ?? 'No se pudo iniciar sesión.';

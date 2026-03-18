@@ -11,12 +11,7 @@
   padding: 0.95rem 0.9rem;
   background: linear-gradient(180deg, #fffdfd 0%, #fff6f3 100%);
   border-right: 1px solid rgba(112, 79, 67, 0.08);
-  transition: width 180ms ease;
   box-shadow: 16px 0 32px rgba(112, 79, 67, 0.05);
-}
-
-.shell-sidenav.is-collapsed {
-  width: 98px;
 }
 
 .shell-sidenav__inner {
@@ -99,11 +94,6 @@
     transform 150ms ease,
     background 150ms ease,
     color 150ms ease;
-}
-
-.nav-link.is-collapsed {
-  grid-template-columns: 1fr;
-  justify-items: center;
 }
 
 .nav-link__icon {
@@ -243,7 +233,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 820px) {
   .shell-content {
     padding: 1rem 0.95rem 1.35rem;
   }

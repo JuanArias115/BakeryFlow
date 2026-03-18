@@ -5,12 +5,11 @@
     [fixedInViewport]="isMobile"
     [disableClose]="!isMobile"
     class="shell-sidenav"
-    [class.is-collapsed]="isNavCollapsed && !isMobile"
   >
     <div class="shell-sidenav__inner">
       <div class="brand">
         <span class="brand-mark">BF</span>
-        <div class="brand-copy" *ngIf="!isNavCollapsed || isMobile">
+        <div class="brand-copy">
           <strong>BakeryFlow</strong>
           <p>Operación pastelera</p>
         </div>
@@ -18,7 +17,7 @@
 
       <div class="nav-scroll">
         <section class="nav-group" *ngFor="let group of navGroups">
-          <p class="nav-group__title" *ngIf="!isNavCollapsed || isMobile">{{ group.label }}</p>
+          <p class="nav-group__title">{{ group.label }}</p>
 
           <a
             *ngFor="let item of group.items"
@@ -26,35 +25,33 @@
             routerLinkActive="active-link"
             [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
             class="nav-link"
-            [class.is-collapsed]="isNavCollapsed && !isMobile"
             (click)="handleNavigation()"
           >
             <span class="nav-link__icon">
               <mat-icon>{{ item.icon }}</mat-icon>
             </span>
-            <span class="nav-link__label" *ngIf="!isNavCollapsed || isMobile">{{ item.label }}</span>
+            <span class="nav-link__label">{{ item.label }}</span>
           </a>
         </section>
 
         <section class="nav-group" *ngIf="isAdmin">
-          <p class="nav-group__title" *ngIf="!isNavCollapsed || isMobile">Administración</p>
+          <p class="nav-group__title">Administración</p>
           <a
             *ngFor="let item of adminNavItems"
             [routerLink]="item.route"
             routerLinkActive="active-link"
             class="nav-link"
-            [class.is-collapsed]="isNavCollapsed && !isMobile"
             (click)="handleNavigation()"
           >
             <span class="nav-link__icon">
               <mat-icon>{{ item.icon }}</mat-icon>
             </span>
-            <span class="nav-link__label" *ngIf="!isNavCollapsed || isMobile">{{ item.label }}</span>
+            <span class="nav-link__label">{{ item.label }}</span>
           </a>
         </section>
       </div>
 
-      <footer class="sidenav-footer" *ngIf="!isNavCollapsed || isMobile">
+      <footer class="sidenav-footer">
         <div class="user-pill">
           <span class="user-pill__avatar">{{ currentUserName.charAt(0) }}</span>
           <div>
@@ -69,8 +66,8 @@
   <mat-sidenav-content class="shell-stage">
     <mat-toolbar class="shell-toolbar">
       <div class="toolbar-leading">
-        <button mat-icon-button type="button" (click)="toggleNav()" class="toolbar-icon-button">
-          <mat-icon>{{ isMobile ? 'menu' : isNavCollapsed ? 'menu' : 'menu_open' }}</mat-icon>
+        <button *ngIf="isMobile" mat-icon-button type="button" (click)="toggleNav()" class="toolbar-icon-button">
+          <mat-icon>menu</mat-icon>
         </button>
         <div>
           <p class="toolbar-caption">Panadería y pastelería</p>

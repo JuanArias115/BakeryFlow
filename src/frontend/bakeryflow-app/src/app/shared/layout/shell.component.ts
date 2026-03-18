@@ -55,7 +55,6 @@ export class ShellComponent implements OnInit {
   readonly adminNavItems: NavItem[] = [{ label: 'Usuarios', route: '/users', icon: 'manage_accounts' }];
   isMobile = false;
   mobileNavOpen = false;
-  isNavCollapsed = false;
 
   constructor(
     private readonly authService: AuthService,
@@ -65,7 +64,7 @@ export class ShellComponent implements OnInit {
 
   ngOnInit(): void {
     this.breakpointObserver
-      .observe('(max-width: 980px)')
+      .observe('(max-width: 820px)')
       .pipe(takeUntilDestroyed())
       .subscribe((state) => {
         this.isMobile = state.matches;
@@ -73,8 +72,8 @@ export class ShellComponent implements OnInit {
       });
 
     if (this.authService.isAuthenticated()) {
-      if (this.router.url === '/' || this.router.url === '') {
-        this.router.navigate(['/dashboard'], { replaceUrl: true });
+      if (this.router.url === '/' || this.router.url === '' || this.router.url === '/login') {
+        this.router.navigateByUrl('/dashboard', { replaceUrl: true });
       }
 
       this.authService.me().subscribe({
@@ -95,10 +94,7 @@ export class ShellComponent implements OnInit {
   toggleNav(): void {
     if (this.isMobile) {
       this.mobileNavOpen = !this.mobileNavOpen;
-      return;
     }
-
-    this.isNavCollapsed = !this.isNavCollapsed;
   }
 
   handleNavigation(): void {
