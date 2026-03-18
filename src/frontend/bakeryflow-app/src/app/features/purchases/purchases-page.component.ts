@@ -233,7 +233,7 @@ export class PurchasesPageComponent implements OnInit {
         unitOfMeasureId: string;
         unitName: string;
         averageCost: number;
-      }>('ingredients', { page: 1, pageSize: 300 }),
+      }>('ingredients', { page: 1, pageSize: 100 }),
     }).subscribe({
       next: ({ suppliers, ingredients }) => {
         this.suppliers = suppliers;

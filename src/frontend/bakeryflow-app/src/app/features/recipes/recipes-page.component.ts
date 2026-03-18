@@ -275,7 +275,7 @@ export class RecipesPageComponent implements OnInit {
         name: string;
         unitOfMeasureId: string;
         unitName: string;
-      }>('ingredients', { page: 1, pageSize: 300 }),
+      }>('ingredients', { page: 1, pageSize: 100 }),
     }).subscribe({
       next: ({ products, ingredients }) => {
         this.products = products;

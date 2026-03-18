@@ -167,7 +167,7 @@ export class SalesPageComponent implements OnInit {
   private loadReferenceData(): void {
     forkJoin({
       customers: this.apiService.getOptions('customers'),
-      products: this.apiService.getPaged<{ id: string; name: string; salePrice: number }>('products', { page: 1, pageSize: 300 }),
+      products: this.apiService.getPaged<{ id: string; name: string; salePrice: number }>('products', { page: 1, pageSize: 100 }),
     }).subscribe({
       next: ({ customers, products }) => {
         this.customers = customers;
