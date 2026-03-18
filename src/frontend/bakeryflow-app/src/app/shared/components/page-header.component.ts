@@ -8,9 +8,11 @@ import { Component, Input } from '@angular/core';
         <span class="page-header__icon" *ngIf="icon">
           <mat-icon>{{ icon }}</mat-icon>
         </span>
-        <p class="eyebrow">{{ eyebrow }}</p>
-        <h1>{{ title }}</h1>
-        <p class="description" *ngIf="description">{{ description }}</p>
+        <div class="page-header__copy">
+          <p class="eyebrow">{{ eyebrow }}</p>
+          <h1>{{ title }}</h1>
+          <p class="description" *ngIf="description">{{ description }}</p>
+        </div>
       </div>
       <div class="page-header__actions">
         <ng-content></ng-content>

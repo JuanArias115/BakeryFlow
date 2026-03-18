@@ -10,25 +10,25 @@
   <section class="card">
     <h3>Ajuste manual</h3>
     <form [formGroup]="form" (ngSubmit)="submitAdjustment()" class="adjustment-form">
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Ingrediente</mat-label>
         <mat-select formControlName="ingredientId">
           <mat-option *ngFor="let ingredient of ingredients" [value]="ingredient.id">{{ ingredient.label }}</mat-option>
         </mat-select>
       </mat-form-field>
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Cantidad (+/-)</mat-label>
         <input matInput type="number" formControlName="quantityDelta" />
       </mat-form-field>
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Costo unitario</mat-label>
         <input matInput type="number" formControlName="unitCost" />
       </mat-form-field>
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Fecha</mat-label>
         <input matInput type="datetime-local" formControlName="date" />
       </mat-form-field>
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Observaciones</mat-label>
         <textarea matInput rows="3" formControlName="notes"></textarea>
       </mat-form-field>

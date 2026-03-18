@@ -16,6 +16,6 @@ export class App {
     matIconRegistry: MatIconRegistry,
   ) {
     this.isLoading$ = loadingService.isLoading$;
-    matIconRegistry.setDefaultFontSetClass('material-symbols-outlined');
+    matIconRegistry.setDefaultFontSetClass('material-symbols-outlined', 'mat-ligature-font', 'notranslate');
   }
 }

@@ -73,6 +73,10 @@ export class ShellComponent implements OnInit {
       });
 
     if (this.authService.isAuthenticated()) {
+      if (this.router.url === '/' || this.router.url === '') {
+        this.router.navigate(['/dashboard'], { replaceUrl: true });
+      }
+
       this.authService.me().subscribe({
         error: () => this.logout(),
       });

@@ -2,26 +2,30 @@
   display: flex;
   justify-content: space-between;
   gap: 1.25rem;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 1.65rem;
 }
 
 .page-header__identity {
-  position: relative;
-  padding-left: 4.1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  min-width: 0;
 }
 
 .page-header__icon {
-  position: absolute;
-  top: 0.1rem;
-  left: 0;
   width: 3rem;
   height: 3rem;
   display: grid;
   place-items: center;
+  flex-shrink: 0;
   border-radius: 1rem;
   background: linear-gradient(180deg, rgba(242, 154, 188, 0.2) 0%, rgba(246, 237, 231, 0.92) 100%);
   color: var(--bf-primary-strong);
+}
+
+.page-header__copy {
+  min-width: 0;
 }
 
 .page-header__actions {
@@ -56,10 +60,11 @@ h1 {
 @media (max-width: 720px) {
   .page-header {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .page-header__identity {
-    padding-left: 3.6rem;
+    gap: 0.9rem;
   }
 
   .page-header__icon {

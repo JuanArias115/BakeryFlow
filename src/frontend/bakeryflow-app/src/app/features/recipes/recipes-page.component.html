@@ -8,7 +8,7 @@
   <section class="card">
     <h3>Costeo por producto</h3>
     <div class="costing-controls">
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Producto</mat-label>
         <mat-select [(ngModel)]="selectedProductId">
           <mat-option *ngFor="let product of products" [value]="product.id">{{ product.label }}</mat-option>

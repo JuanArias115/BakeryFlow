@@ -9,7 +9,7 @@
 
     <form [formGroup]="form" class="entity-form bf-form-grid" (ngSubmit)="submit()">
       <ng-container *ngFor="let field of fields; trackBy: trackByKey">
-        <mat-form-field appearance="outline" *ngIf="field.type !== 'checkbox'">
+        <mat-form-field appearance="fill" *ngIf="field.type !== 'checkbox'">
           <mat-label>{{ field.label }}</mat-label>
 
           <input
@@ -58,7 +58,7 @@
 
   <div class="panel panel-table bf-table-shell">
     <div class="table-toolbar">
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Buscar</mat-label>
         <input matInput [value]="search" (keyup)="onSearchChange(($any($event.target)).value)" />
       </mat-form-field>

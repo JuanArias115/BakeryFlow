@@ -15,22 +15,22 @@
     eyebrow="Gestión interna"
   >
     <form [formGroup]="form" (ngSubmit)="submit()" class="user-form bf-form-grid">
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Nombre</mat-label>
         <input matInput formControlName="firstName" />
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Apellido</mat-label>
         <input matInput formControlName="lastName" />
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Email</mat-label>
         <input matInput type="email" formControlName="email" />
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Rol</mat-label>
         <mat-select formControlName="role">
           <mat-option value="Admin">Admin</mat-option>
@@ -38,7 +38,7 @@
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>Contraseña {{ editingId ? '(solo para crear)' : '' }}</mat-label>
         <input matInput type="password" formControlName="password" />
       </mat-form-field>
@@ -138,7 +138,7 @@
   eyebrow="Seguridad"
 >
   <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="password-form">
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="fill">
       <mat-label>Nueva contraseña</mat-label>
       <input matInput type="password" formControlName="password" />
     </mat-form-field>

@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -9,7 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './login.component.scss',
   standalone: false,
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loading = false;
   error = '';
   readonly form;
@@ -25,6 +26,12 @@ export class LoginComponent {
     });
   }
 
+  ngOnInit(): void {
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/dashboard'], { replaceUrl: true });
+    }
+  }
+
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -35,14 +42,16 @@ export class LoginComponent {
     this.error = '';
 
     const { email, password } = this.form.getRawValue();
-    this.authService.login(email ?? '', password ?? '').subscribe({
-      next: () => {
+    this.authService.login(email ?? '', password ?? '').pipe(
+      finalize(() => {
         this.loading = false;
+      }),
+    ).subscribe({
+      next: () => {
         this.router.navigate(['/dashboard']);
       },
       error: (error: { error?: { message?: string } }) => {
         this.error = error.error?.message ?? 'No se pudo iniciar sesión.';
-        this.loading = false;
       },
     });
   }
